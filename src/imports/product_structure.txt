@@ -1,0 +1,613 @@
+# 🧠 MACROSCOPE — MASTER PRODUCT DOCUMENT (V2: PERFORMANCE OS)
+
+---
+
+# 🎯 1. PRODUCT IDENTITY
+
+MacroScope is NOT:
+
+* a calorie tracker
+* a habit tracker
+* a wellness reflection app
+
+MacroScope IS:
+
+> **A Personal Performance Operating System that allows users to monitor, control, and optimize their physical state across key systems: Sleep, Nutrition, and Activity.**
+
+---
+
+# 🧭 2. CORE PRODUCT MODEL
+
+The product is structured as a **multi-system control environment**:
+
+* Sleep System
+* Nutrition System
+* Activity System
+
+All systems are:
+
+* measurable
+* interdependent
+* continuously evolving
+
+---
+
+## 🔁 CORE LOOP
+
+```text
+Monitor → Detect Signals → Adjust → Improve Stability
+```
+
+---
+
+Definitions:
+
+* **Monitor** = track system inputs and outputs
+* **Signals** = system-level alerts derived from data
+* **Adjust** = user action to correct imbalance
+* **Stability** = consistency and performance over time
+
+---
+
+# 🧠 3. UX PHILOSOPHY (NON-NEGOTIABLE)
+
+## 3.1 System Clarity Over Simplicity
+
+* UI must feel structured and intentional
+* Avoid decorative or playful design
+
+---
+
+## 3.2 Control Over Reflection
+
+* Users interact with a system, not a diary
+* Focus on measurable state, not feelings
+
+---
+
+## 3.3 Fast Interaction Loop
+
+* Core actions must take seconds
+* No friction-heavy workflows
+
+---
+
+## 3.4 Signal Over Noise
+
+* Only surface meaningful changes
+* Avoid overwhelming the user with data
+
+---
+
+## 3.5 One Decision at a Time
+
+* At any moment, user should know:
+  → what is wrong
+  → what to adjust
+
+---
+
+# 📊 4. SYSTEM ARCHITECTURE (PRODUCT LEVEL)
+
+## 4.1 Core Systems
+
+### A. Sleep System
+
+Tracks and evaluates:
+
+* duration
+* timing
+* consistency
+
+---
+
+### B. Nutrition System
+
+Tracks and evaluates:
+
+* calories
+* macronutrients
+* meal timing
+
+---
+
+### C. Activity System
+
+Tracks and evaluates:
+
+* steps
+* workouts
+* intensity
+
+---
+
+## 4.2 Interdependency (CRITICAL)
+
+Systems must NOT behave independently.
+
+Examples:
+
+* Poor sleep → reduced activity
+* Heavy meals → lower sleep quality
+* Low activity → unstable recovery
+
+---
+
+## 4.3 System Signals (CORE DIFFERENTIATOR)
+
+Replace “insights” with:
+
+> **Signals**
+
+Signals are:
+
+* short
+* precise
+* system-driven
+
+Format:
+
+“[Condition] is affecting [System Outcome]”
+
+Examples:
+
+* “Late meals are reducing sleep consistency”
+* “Low activity is weakening recovery”
+
+---
+
+# 🎯 5. CONTROL CENTER (MASTER PAGE)
+
+## Purpose:
+
+Provide a **real-time overview of system state**
+
+---
+
+## Must Include:
+
+### A. System Status
+
+```text
+Sleep: Stable
+Nutrition: Imbalanced
+Activity: Low
+```
+
+---
+
+### B. Key Signals
+
+* Top 1–3 system alerts
+
+---
+
+### C. Priority Adjustment
+
+ONLY ONE:
+
+“Increase activity today to stabilize system”
+
+---
+
+### D. Minimal Metrics
+
+* calories
+* steps
+* sleep duration
+
+(secondary, not dominant)
+
+---
+
+# 🛌 6. SYSTEM PAGES
+
+Each system has its own dedicated environment.
+
+---
+
+## 6.1 Sleep Page
+
+* sleep metrics
+* trends
+* timing consistency
+* related signals
+
+---
+
+## 6.2 Nutrition Page
+
+* calorie tracking
+* macros
+* meal logs
+* timing effects
+
+---
+
+## 6.3 Activity Page
+
+* steps
+* workouts
+* intensity
+* consistency
+
+---
+
+## RULE:
+
+Each page focuses ONLY on its system
+but displays cross-system effects via signals
+
+---
+
+# 🎨 7. UI PHILOSOPHY
+
+## 7.1 OS-Like Interface
+
+* structured layout
+* panel-based design
+* minimal decoration
+
+---
+
+## 7.2 Visual Restraint
+
+* dark or neutral base
+* one accent color
+* no multi-color system
+
+---
+
+## 7.3 Typography Hierarchy
+
+* system state → prominent
+* signals → readable
+* metrics → secondary
+
+---
+
+## 7.4 No Dashboard Clutter
+
+* avoid excessive cards
+* avoid visual noise
+* avoid equal-weight elements
+
+---
+
+# ⚡ 8. INTERACTION MODEL
+
+* instant response
+* minimal transitions
+* no unnecessary animations
+
+---
+
+## Key Behavior:
+
+* logging → immediate system update
+* navigation → frictionless
+* actions → clear and direct
+
+---
+
+# 🧱 9. TECHNICAL ARCHITECTURE (MANDATORY)
+
+## 9.1 Layer Separation
+
+* UI Layer
+* Hooks Layer
+* Services Layer
+* API Layer
+
+---
+
+## 9.2 Rules
+
+* UI MUST NOT call API
+* UI ONLY uses hooks
+* Hooks manage logic + state
+* Services handle external operations
+
+---
+
+## 9.3 Core System
+
+/core
+/hooks
+/services
+/types
+/logic (future signal engine)
+
+---
+
+## 9.4 Platform Layers
+
+/web (React)
+/desktop (Electron)
+/mobile (React Native)
+
+---
+
+## 9.5 Platform Rules
+
+* Core is shared
+* UI is platform-specific
+* No logic duplication
+
+---
+
+# ⚙️ 10. SCALABILITY PRINCIPLES
+
+## 10.1 Modular Systems
+
+Each system (Sleep, Nutrition, Activity):
+
+* independently extendable
+* reusable logic
+
+---
+
+## 10.2 Replaceable UI
+
+* UI can be redesigned without affecting logic
+
+---
+
+## 10.3 Expandable Signal Engine
+
+* future rules and ML can plug into system
+
+---
+
+# ⚠️ 11. WHAT TO AVOID
+
+* wellness-style vague insights
+* emotional or reflective language
+* feature overload
+* cluttered dashboards
+* inconsistent UI patterns
+
+---
+
+# 🎯 12. EXPERIENCE GOAL
+
+User should feel:
+
+* “I am in control of my system”
+* “I understand what is happening”
+* “I know what to adjust”
+
+NOT:
+
+* “I am tracking things”
+* “I am overwhelmed”
+
+**_**____
+
+ 
+
+# 🚀 13. ONBOARDING FLOW (SYSTEM INITIALIZATION)
+
+---
+
+# 🎯 PURPOSE
+
+Onboarding is NOT for explanation.
+
+It is for:
+
+> **Initializing the system with minimal friction and getting the user to first meaningful interaction.**
+
+---
+
+# ⚠️ CORE RULES
+
+## 13.1 No Friction
+
+* Total onboarding time: **< 60–90 seconds**
+* No unnecessary steps
+* No long forms
+
+---
+
+## 13.2 No Over-Explanation
+
+* Do NOT explain the full product
+* Let the system demonstrate value through use
+
+---
+
+## 13.3 Immediate Activation
+
+* User must reach **Control Center quickly**
+* Prefer action over information
+
+---
+
+## 13.4 Progressive Depth
+
+* Do NOT collect everything upfront
+* Expand data collection over time
+
+---
+
+# 🧭 ONBOARDING FLOW STRUCTURE
+
+```
+Entry → Minimal Setup → First System State → Control Center
+
+```
+
+---
+
+# 🔥 STEP 1 — ENTRY SCREEN
+
+## Content:
+
+Headline:
+
+> “Set up your performance system”
+
+Subtext (minimal):
+
+> “Monitor sleep, nutrition, and activity in one system”
+
+---
+
+## CTA:
+
+👉 “Start Setup”
+
+---
+
+# 🔥 STEP 2 — MINIMAL USER SETUP
+
+ONLY collect essentials:
+
+* Height
+* Weight
+* Goal (optional: maintain / improve / lose / gain)
+
+---
+
+## RULE:
+
+* Keep inputs fast
+* No calculations shown
+* No overload
+
+---
+
+# 🔥 STEP 3 — BASELINE INITIALIZATION
+
+## Purpose:
+
+Establish starting state for systems
+
+---
+
+## Inputs (lightweight):
+
+* Typical sleep time (optional quick select)
+* Activity level (low / moderate / high)
+* Eating pattern (light / balanced / heavy)
+
+---
+
+## IMPORTANT:
+
+* These are approximations, not precise inputs
+* Used only for initial system state
+
+---
+
+# 🔥 STEP 4 — FIRST SYSTEM SNAPSHOT
+
+Immediately show a simple system state:
+
+```
+Sleep: Unknown
+Nutrition: Moderate
+Activity: Low
+
+```
+
+---
+
+## Purpose:
+
+* Make the system feel “alive”
+* Avoid empty UI
+
+---
+
+# 🔥 STEP 5 — ENTER CONTROL CENTER
+
+User is taken directly to:
+
+👉 **Control Center (Master Page)**
+
+---
+
+## First Experience Must Show:
+
+* System status
+* One simple signal (even if generic baseline)
+* One suggested action
+
+Example:
+
+> “Increase activity today to stabilize system”
+
+---
+
+# ⚡ OPTIONAL: FIRST ACTION PROMPT
+
+Prompt user:
+
+> “Log your first meal”
+> OR
+> “Start tracking today’s activity”
+
+---
+
+# 🧠 ONBOARDING PHILOSOPHY
+
+## Show > Tell
+
+* Do not explain system logic
+* Let user experience it
+
+---
+
+## System Comes Alive Immediately
+
+* No empty dashboards
+* No “start tracking to see results”
+
+---
+
+## Reduce Commitment Anxiety
+
+* No heavy signup pressure
+* No long-term promises
+
+---
+
+# ⚠️ WHAT TO AVOID
+
+* Multi-step onboarding funnels
+* Tutorials and walkthrough screens
+* Feature explanations
+* Asking too many questions
+* Showing graphs before data exists
+
+---
+
+# 🎯 SUCCESS CONDITION
+
+User should feel:
+
+* “I’m already inside the system”
+* “This is simple”
+* “I can start using this immediately”
+
+NOT:
+
+* “I need to learn this first”
+
+---
+
+  
+
+---
+
+# 🧠 FINAL STATEMENT
+
+MacroScope is not a tracker.
+
+It is:
+
+> **A system that enables users to monitor, control, and optimize their physical performance through structured systems, clear signals, and precise adjustments.**
+
+---

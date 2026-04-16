@@ -1,0 +1,93 @@
+# Dependencies
+node_modules/
+.npm
+jspm_packages/
+.yarn-integrity
+
+# Build outputs
+dist/
+dist-electron-main/
+build/
+release/
+out/
+*.tgz
+.cache
+.parcel-cache
+.next
+.nuxt
+.vuepress/dist
+.serverless
+.fusebox/
+.dynamodb/
+.vscode-test
+
+# Mobile (React Native / Expo) - PROTECTED SOURCE
+src/mobile/
+.expo/
+.expo-shared/
+android/
+ios/
+
+# Desktop (Electron) - PROTECTED SOURCE
+src/desktop/
+app/dist/
+
+# Additional
+zzadditional/
+
+# Web
+src/web/dist/
+
+# Environment variables (private)
+.env
+.env.local
+.env.*.local
+*.env
+.env.*
+!.env.example
+secrets.json
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+.nyc_output
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+*.temp
+
+# TypeScript
+*.tsbuildinfo
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Supabase
+supabase/.branches
+supabase/.temp

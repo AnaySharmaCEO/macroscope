@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "lib": ["ESNext", "DOM"],
+    "module": "NodeNext",
+    "skipLibCheck": true,
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "outDir": "dist-electron-main",
+    "rootDir": "src/desktop",
+    "esModuleInterop": true,
+    "strict": true,
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": false,
+    "noEmit": false
+  },
+  "include": [
+    "src/desktop/main.ts",
+    "src/desktop/preload.ts"
+  ],
+  "exclude": ["node_modules", "dist-electron-main", "dist-electron-renderer"]
+}
