@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MacroScope Architecture Map - Dependency Graph</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #e5e5e5;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: rgba(20, 20, 35, 0.95);
+            border-right: 2px solid #00d4ff;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: inset -10px 0 20px rgba(0, 212, 255, 0.1);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(20, 20, 35, 0.95);
+            border-bottom: 2px solid #00d4ff;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #00d4ff;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #a4a4a4;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+        }
+
+        .control-btn.secondary {
+            background: rgba(100, 100, 120, 0.5);
+            color: #e5e5e5;
+            border: 1px solid #00d4ff;
+        }
+
+        .graph-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #0a0a0a, #1a1a2e);
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .node {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .node circle {
+            stroke-width: 2px;
+            filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.3));
+        }
+
+        .node text {
+            font-size: 11px;
+            pointer-events: none;
+            text-anchor: middle;
+            fill: #e5e5e5;
+            font-weight: 600;
+        }
+
+        .node:hover circle {
+            filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.8));
+            r: 25;
+        }
+
+        .link {
+            stroke: rgba(100, 150, 200, 0.3);
+            stroke-width: 2px;
+            transition: all 0.2s ease;
+        }
+
+        .link.dependency {
+            stroke: rgba(100, 200, 255, 0.4);
+        }
+
+        .link.strong {
+            stroke: rgba(0, 212, 255, 0.6);
+            stroke-width: 3px;
+        }
+
+        .link:hover {
+            stroke: rgba(0, 212, 255, 0.8);
+            stroke-width: 3px;
+            filter: drop-shadow(0 0 5px rgba(0, 212, 255, 0.6));
+        }
+
+        /* Node Colors by Type */
+        .node-page circle { fill: #ff6b6b; }
+        .node-component circle { fill: #4ecdc4; }
+        .node-hook circle { fill: #ffd93d; }
+        .node-service circle { fill: #6bcf7f; }
+        .node-api circle { fill: #a78bfa; }
+        .node-util circle { fill: #f97316; }
+        .node-type circle { fill: #06b6d4; }
+        .node-library circle { fill: #ec4899; }
+
+        .sidebar h2 {
+            font-size: 14px;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .legend {
+            margin-bottom: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        .legend-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .node-list {
+            margin-bottom: 20px;
+        }
+
+        .node-item {
+            padding: 8px;
+            background: rgba(100, 100, 120, 0.2);
+            border-left: 3px solid #00d4ff;
+            margin-bottom: 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .node-item:hover {
+            background: rgba(0, 212, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(20, 20, 35, 0.95);
+            border: 2px solid #00d4ff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 1000;
+            pointer-events: none;
+            max-width: 300px;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .tooltip.hidden {
+            display: none;
+        }
+
+        .stats {
+            background: rgba(100, 100, 120, 0.2);
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .stats-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            background: rgba(100, 100, 120, 0.2);
+            border: 1px solid #00d4ff;
+            border-radius: 4px;
+            color: #e5e5e5;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+
+        .search-box::placeholder {
+            color: #a4a4a4;
+        }
+
+        .search-box:focus {
+            outline: none;
+            background: rgba(0, 212, 255, 0.1);
+            box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.2);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(100, 100, 120, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 212, 255, 0.6);
+        }
+
+        .path-info {
+            font-size: 10px;
+            color: #a4a4a4;
+            margin-top: 4px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(20, 20, 35, 0.95);
+            border: 2px solid #00d4ff;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .modal-header {
+            font-size: 18px;
+            color: #00d4ff;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 24px;
+            color: #00d4ff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            color: #ff6b6b;
+            transform: scale(1.2);
+        }
+
+        .architecture-title {
+            font-size: 11px;
+            color: #a4a4a4;
+            text-transform: uppercase;
+            margin: 15px 0 10px 0;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 250px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: 30vh;
+                border-right: none;
+                border-bottom: 2px solid #00d4ff;
+            }
+
+            .graph-container {
+                height: 70vh;
+            }
+        }
+
+        .zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px solid #00d4ff;
+            color: #00d4ff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(0, 212, 255, 0.3);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 style="font-size: 16px; color: #00d4ff; margin: 0;">MacroScope</h1>
+                <span style="font-size: 10px; color: #a4a4a4;">Architecture</span>
+            </div>
+
+            <div class="stats">
+                <div class="stats-item">
+                    <span>Components:</span>
+                    <span id="stat-components">23</span>
+                </div>
+                <div class="stats-item">
+                    <span>Hooks:</span>
+                    <span id="stat-hooks">11</span>
+                </div>
+                <div class="stats-item">
+                    <span>Services:</span>
+                    <span id="stat-services">8</span>
+                </div>
+                <div class="stats-item">
+                    <span>Pages:</span>
+                    <span id="stat-pages">6</span>
+                </div>
+                <div class="stats-item">
+                    <span>Total Nodes:</span>
+                    <span id="stat-total">0</span>
+                </div>
+            </div>
+
+            <input type="text" class="search-box" id="searchBox" placeholder="Search nodes...">
+
+            <h2>Legend</h2>
+            <div class="legend">
+                <div class="legend-item" onclick="filterByType('page')">
+                    <div class="legend-color" style="background: #ff6b6b;"></div>
+                    <span>Pages</span>
+                </div>
+                <div class="legend-item" onclick="filterByType('component')">
+                    <div class="legend-color" style="background: #4ecdc4;"></div>
+                    <span>Components</span>
+                </div>
+                <div class="legend-item" onclick="filterByType('hook')">
+                    <div class="legend-color" style="background: #ffd93d;"></div>
+                    <span>Hooks</span>
+                </div>
+                <div class="legend-item" onclick="filterByType('service')">
+                    <div class="legend-color" style="background: #6bcf7f;"></div>
+                    <span>Services</span>
+                </div>
+                <div class="legend-item" onclick="filterByType('api')">
+                    <div class="legend-color" style="background: #a78bfa;"></div>
+                    <span>API Layer</span>
+                </div>
+                <div class="legend-item" onclick="filterByType('library')">
+                    <div class="legend-color" style="background: #ec4899;"></div>
+                    <span>Libraries</span>
+                </div>
+            </div>
+
+            <h2>Key Pages</h2>
+            <div class="node-list" id="pagesList"></div>
+
+            <h2>Top Hooks</h2>
+            <div class="node-list" id="hooksList"></div>
+
+            <h2>Services</h2>
+            <div class="node-list" id="servicesList"></div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>🎯 MacroScope Architecture Map</h1>
+                <p>Performance OS - Component Dependencies & Data Flow Visualization</p>
+                <div class="controls">
+                    <button class="control-btn" onclick="resetZoom()">Reset View</button>
+                    <button class="control-btn secondary" onclick="togglePhysics()">Toggle Physics</button>
+                    <button class="control-btn secondary" onclick="showDocumentation()">Documentation</button>
+                </div>
+            </div>
+
+            <div class="graph-container" id="graphContainer">
+                <svg id="graph"></svg>
+                <div class="zoom-controls">
+                    <button class="zoom-btn" onclick="zoomIn()">+</button>
+                    <button class="zoom-btn" onclick="zoomOut()">−</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip hidden" id="tooltip"></div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div class="modal-header">Architecture Documentation</div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // Architecture Data Structure
+        const architectureData = {
+            nodes: [
+                // Pages
+                { id: 'page-control', name: 'ControlCenter', type: 'page', description: 'Home/Dashboard - System overview', path: 'src/web/pages/ControlCenterPage.tsx', dependencies: 5 },
+                { id: 'page-sleep', name: 'Sleep Page', type: 'page', description: 'Sleep tracking & logging', path: 'src/web/pages/SleepPage.tsx', dependencies: 4 },
+                { id: 'page-nutrition', name: 'Nutrition Page', type: 'page', description: 'Meal logging & nutrition tracking', path: 'src/web/pages/NutritionPage.tsx', dependencies: 6 },
+                { id: 'page-activity', name: 'Activity Page', type: 'page', description: 'Workout & step tracking', path: 'src/web/pages/ActivityPage.tsx', dependencies: 4 },
+                { id: 'page-insights', name: 'Insights Page', type: 'page', description: 'Analytics & trends', path: 'src/web/pages/InsightsPage.tsx', dependencies: 3 },
+                { id: 'page-settings', name: 'Settings Page', type: 'page', description: 'User preferences & config', path: 'src/web/pages/SettingsPage.tsx', dependencies: 4 },
+
+                // Core Hooks
+                { id: 'hook-auth', name: 'useAuth', type: 'hook', description: 'Authentication state & OTP flow', path: 'src/core/hooks/useAuth.tsx', dependencies: 3 },
+                { id: 'hook-overview', name: 'useSystemOverview', type: 'hook', description: 'Master orchestration hook', path: 'src/core/hooks/useSystemOverview.ts', dependencies: 8 },
+                { id: 'hook-sleep', name: 'useSleepSystem', type: 'hook', description: 'Sleep system management', path: 'src/core/hooks/useSleepSystem.ts', dependencies: 2 },
+                { id: 'hook-nutrition', name: 'useNutritionSystem', type: 'hook', description: 'Nutrition system management', path: 'src/core/hooks/useNutritionSystem.ts', dependencies: 3 },
+                { id: 'hook-activity', name: 'useActivitySystem', type: 'hook', description: 'Activity system management', path: 'src/core/hooks/useActivitySystem.ts', dependencies: 2 },
+                { id: 'hook-profile', name: 'useProfile', type: 'hook', description: 'User profile management', path: 'src/core/hooks/useProfile.ts', dependencies: 2 },
+                { id: 'hook-settings', name: 'useSettings', type: 'hook', description: 'Settings & preferences', path: 'src/core/hooks/useSettings.ts', dependencies: 2 },
+                { id: 'hook-goals', name: 'useGoals', type: 'hook', description: 'Goals & progress tracking', path: 'src/core/hooks/useGoals.ts', dependencies: 2 },
+                { id: 'hook-alerts', name: 'useAlerts', type: 'hook', description: 'Alert & notification state', path: 'src/core/hooks/useAlerts.ts', dependencies: 2 },
+
+                // UI Components
+                { id: 'comp-action-btn', name: 'ActionButton', type: 'component', description: 'Primary button component', path: 'src/web/ui/components/ActionButton.tsx' },
+                { id: 'comp-input', name: 'InputField', type: 'component', description: 'Form input wrapper', path: 'src/web/ui/components/InputField.tsx' },
+                { id: 'comp-search', name: 'SearchableInput', type: 'component', description: 'Input with search dropdown', path: 'src/web/ui/components/SearchableInput.tsx' },
+                { id: 'comp-gauge', name: 'DailyScoreGauge', type: 'component', description: 'Circular progress gauge', path: 'src/web/ui/components/DailyScoreGauge.tsx' },
+                { id: 'comp-card', name: 'SystemCard', type: 'component', description: 'Metric card display', path: 'src/web/ui/components/SystemCard.tsx' },
+                { id: 'comp-segment', name: 'SegmentedControl', type: 'component', description: 'Toggle button group', path: 'src/web/ui/components/SegmentedControl.tsx' },
+                { id: 'comp-form', name: 'FormContainer', type: 'component', description: 'Form layout wrapper', path: 'src/web/ui/components/FormContainer.tsx' },
+                { id: 'comp-panel', name: 'PanelLayout', type: 'component', description: 'Full-screen panel layout', path: 'src/web/ui/components/PanelLayout.tsx' },
+                { id: 'comp-sidebar', name: 'Sidebar', type: 'component', description: 'Navigation sidebar', path: 'src/web/ui/components/Sidebar.tsx' },
+                { id: 'comp-bottom-nav', name: 'BottomNav', type: 'component', description: 'Mobile navigation', path: 'src/web/ui/components/BottomNav.tsx' },
+                { id: 'comp-select', name: 'SelectOptionGroup', type: 'component', description: 'Dropdown select', path: 'src/web/ui/components/SelectOptionGroup.tsx' },
+                { id: 'comp-settings-row', name: 'SettingsRow', type: 'component', description: 'Settings item', path: 'src/web/ui/components/SettingsRow.tsx' },
+                { id: 'comp-signals', name: 'SignalsList', type: 'component', description: 'Alert list display', path: 'src/web/ui/components/SignalsList.tsx' },
+
+                // Services
+                { id: 'service-sleep', name: 'sleepService', type: 'service', description: 'Sleep data operations', path: 'src/core/services/sleepService.ts' },
+                { id: 'service-nutrition', name: 'nutritionService', type: 'service', description: 'Nutrition data operations', path: 'src/core/services/nutritionService.ts' },
+                { id: 'service-activity', name: 'activityService', type: 'service', description: 'Activity data operations', path: 'src/core/services/activityService.ts' },
+                { id: 'service-auth', name: 'authService', type: 'service', description: 'Authentication operations', path: 'src/core/services/authService.ts' },
+                { id: 'service-profile', name: 'profileService', type: 'service', description: 'Profile operations', path: 'src/core/services/profileService.ts' },
+                { id: 'service-settings', name: 'settingsService', type: 'service', description: 'Settings operations', path: 'src/core/services/settingsService.ts' },
+                { id: 'service-notification', name: 'notificationService', type: 'service', description: 'Push notifications', path: 'src/core/services/notificationService.ts' },
+                { id: 'service-food', name: 'foodDatabaseService', type: 'service', description: 'Food database search', path: 'src/core/services/foodDatabaseService.ts' },
+
+                // API Layer
+                { id: 'api-core', name: 'API Layer', type: 'api', description: 'Supabase API wrapper', path: 'src/core/api.ts' },
+                { id: 'api-auth', name: 'Auth APIs', type: 'api', description: 'OTP & session management' },
+                { id: 'api-data', name: 'Data APIs', type: 'api', description: 'CRUD operations' },
+                { id: 'api-rpc', name: 'RPC Functions', type: 'api', description: 'Server-side logic' },
+
+                // Libraries & External
+                { id: 'lib-supabase', name: 'Supabase', type: 'library', description: 'Backend & Auth' },
+                { id: 'lib-framer', name: 'Framer Motion', type: 'library', description: 'Animations' },
+                { id: 'lib-recharts', name: 'Recharts', type: 'library', description: 'Data visualization' },
+                { id: 'lib-radix', name: 'Radix UI', type: 'library', description: 'Accessible components' },
+                { id: 'lib-tailwind', name: 'Tailwind CSS', type: 'library', description: 'Styling' },
+                { id: 'lib-router', name: 'React Router', type: 'library', description: 'Routing' },
+
+                // Architecture Layers
+                { id: 'layer-ui', name: 'UI Layer', type: 'util', description: 'React components' },
+                { id: 'layer-state', name: 'State Layer', type: 'util', description: 'Context & Hooks' },
+                { id: 'layer-business', name: 'Business Logic', type: 'util', description: 'Services' },
+                { id: 'layer-data', name: 'Data Layer', type: 'util', description: 'API & Database' },
+            ],
+
+            links: [
+                // Pages -> Hooks
+                { source: 'page-control', target: 'hook-overview', type: 'strong' },
+                { source: 'page-control', target: 'hook-profile', type: 'dependency' },
+                { source: 'page-sleep', target: 'hook-sleep', type: 'strong' },
+                { source: 'page-sleep', target: 'comp-form', type: 'dependency' },
+                { source: 'page-nutrition', target: 'hook-nutrition', type: 'strong' },
+                { source: 'page-nutrition', target: 'hook-settings', type: 'dependency' },
+                { source: 'page-activity', target: 'hook-activity', type: 'strong' },
+                { source: 'page-insights', target: 'hook-overview', type: 'dependency' },
+                { source: 'page-settings', target: 'hook-settings', type: 'strong' },
+                { source: 'page-settings', target: 'hook-profile', type: 'dependency' },
+
+                // Pages -> Components
+                { source: 'page-control', target: 'comp-gauge', type: 'dependency' },
+                { source: 'page-control', target: 'comp-card', type: 'dependency' },
+                { source: 'page-sleep', target: 'comp-input', type: 'dependency' },
+                { source: 'page-sleep', target: 'comp-action-btn', type: 'dependency' },
+                { source: 'page-nutrition', target: 'comp-search', type: 'dependency' },
+                { source: 'page-nutrition', target: 'comp-segment', type: 'dependency' },
+                { source: 'page-nutrition', target: 'comp-action-btn', type: 'dependency' },
+                { source: 'page-activity', target: 'comp-card', type: 'dependency' },
+
+                // Hooks -> Services
+                { source: 'hook-overview', target: 'service-sleep', type: 'strong' },
+                { source: 'hook-overview', target: 'service-nutrition', type: 'strong' },
+                { source: 'hook-overview', target: 'service-activity', type: 'strong' },
+                { source: 'hook-sleep', target: 'service-sleep', type: 'strong' },
+                { source: 'hook-nutrition', target: 'service-nutrition', type: 'strong' },
+                { source: 'hook-nutrition', target: 'service-food', type: 'dependency' },
+                { source: 'hook-activity', target: 'service-activity', type: 'strong' },
+                { source: 'hook-profile', target: 'service-profile', type: 'strong' },
+                { source: 'hook-auth', target: 'service-auth', type: 'strong' },
+                { source: 'hook-settings', target: 'service-settings', type: 'strong' },
+                { source: 'hook-alerts', target: 'service-notification', type: 'strong' },
+
+                // Services -> API
+                { source: 'service-sleep', target: 'api-core', type: 'strong' },
+                { source: 'service-nutrition', target: 'api-core', type: 'strong' },
+                { source: 'service-activity', target: 'api-core', type: 'strong' },
+                { source: 'service-auth', target: 'api-core', type: 'strong' },
+                { source: 'service-profile', target: 'api-core', type: 'strong' },
+                { source: 'service-settings', target: 'api-core', type: 'strong' },
+                { source: 'service-food', target: 'api-core', type: 'dependency' },
+                { source: 'service-notification', target: 'api-core', type: 'dependency' },
+
+                // API -> Backend
+                { source: 'api-core', target: 'lib-supabase', type: 'strong' },
+                { source: 'api-core', target: 'api-auth', type: 'dependency' },
+                { source: 'api-core', target: 'api-data', type: 'dependency' },
+                { source: 'api-core', target: 'api-rpc', type: 'dependency' },
+
+                // Components -> Libraries
+                { source: 'comp-action-btn', target: 'lib-tailwind', type: 'dependency' },
+                { source: 'comp-gauge', target: 'lib-framer', type: 'dependency' },
+                { source: 'comp-card', target: 'lib-tailwind', type: 'dependency' },
+                { source: 'page-insights', target: 'lib-recharts', type: 'dependency' },
+
+                // Layer connections
+                { source: 'layer-ui', target: 'layer-state', type: 'dependency' },
+                { source: 'layer-state', target: 'layer-business', type: 'dependency' },
+                { source: 'layer-business', target: 'layer-data', type: 'dependency' },
+            ]
+        };
+
+        let simulation, svg, g, nodeElements, linkElements, allNodes, allLinks, currentZoom = 1;
+
+        function initializeGraph() {
+            const container = document.getElementById('graphContainer');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            svg = d3.select('#graph')
+                .attr('width', width)
+                .attr('height', height);
+
+            // Clear previous
+            svg.selectAll('*').remove();
+
+            // Add definitions for arrowheads
+            svg.append('defs').selectAll('marker')
+                .data(['default', 'strong'])
+                .enter()
+                .append('marker')
+                .attr('id', d => `arrow-${d}`)
+                .attr('viewBox', '0 -5 10 10')
+                .attr('refX', 20)
+                .attr('refY', 0)
+                .attr('markerWidth', 6)
+                .attr('markerHeight', 6)
+                .attr('orient', 'auto')
+                .append('path')
+                .attr('d', 'M0,-5L10,0L0,5')
+                .attr('fill', d => d === 'strong' ? 'rgba(0, 212, 255, 0.6)' : 'rgba(100, 150, 200, 0.3)');
+
+            // Create groups
+            g = svg.append('g');
+
+            // Initialize simulation
+            simulation = d3.forceSimulation(architectureData.nodes)
+                .force('link', d3.forceLink(architectureData.links)
+                    .id(d => d.id)
+                    .distance(d => d.type === 'strong' ? 80 : 120)
+                    .strength(0.5))
+                .force('charge', d3.forceManyBody().strength(-300))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide().radius(25));
+
+            // Draw links
+            linkElements = g.selectAll('.link')
+                .data(architectureData.links)
+                .enter()
+                .append('line')
+                .attr('class', d => `link ${d.type}`)
+                .attr('marker-end', d => `url(#arrow-${d.type})`)
+                .attr('stroke-dasharray', d => d.type === 'strong' ? '0' : '5,5');
+
+            // Draw nodes
+            nodeElements = g.selectAll('.node')
+                .data(architectureData.nodes)
+                .enter()
+                .append('g')
+                .attr('class', d => `node node-${d.type}`)
+                .call(d3.drag()
+                    .on('start', dragStarted)
+                    .on('drag', dragged)
+                    .on('end', dragEnded));
+
+            nodeElements.append('circle')
+                .attr('r', 20);
+
+            nodeElements.append('text')
+                .attr('dy', 4)
+                .text(d => d.name);
+
+            nodeElements.on('mouseenter', showTooltip)
+                .on('mouseleave', hideTooltip)
+                .on('click', nodeClicked);
+
+            simulation.on('tick', updatePositions);
+
+            // Setup zoom
+            const zoom = d3.zoom().on('zoom', (event) => {
+                currentZoom = event.transform.k;
+                g.attr('transform', event.transform);
+            });
+
+            svg.call(zoom);
+
+            // Populate sidebar
+            populateSidebar();
+            updateStats();
+
+            // Add search functionality
+            document.getElementById('searchBox').addEventListener('input', handleSearch);
+        }
+
+        function updatePositions() {
+            linkElements
+                .attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
+
+            nodeElements
+                .attr('transform', d => `translate(${d.x},${d.y})`);
+        }
+
+        function dragStarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragEnded(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        function showTooltip(event, d) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.classList.remove('hidden');
+            tooltip.innerHTML = `
+                <strong>${d.name}</strong><br>
+                <span style="color: #a4a4a4; font-size: 10px;">${d.type.toUpperCase()}</span><br>
+                ${d.description ? `<span style="margin-top: 5px; display: block; font-size: 11px;">${d.description}</span>` : ''}
+                ${d.path ? `<div class="path-info">${d.path}</div>` : ''}
+                ${d.dependencies ? `<div style="margin-top: 5px; font-size: 10px; color: #ffd93d;">Dependencies: ${d.dependencies}</div>` : ''}
+            `;
+            const rect = event.target.getBoundingClientRect();
+            tooltip.style.left = (rect.right + 10) + 'px';
+            tooltip.style.top = rect.top + 'px';
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.add('hidden');
+        }
+
+        function nodeClicked(event, d) {
+            const modal = document.getElementById('modal');
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <h3 style="color: #00d4ff; margin-bottom: 10px;">${d.name}</h3>
+                    <p style="font-size: 12px; color: #a4a4a4; margin-bottom: 10px;">${d.type.toUpperCase()}</p>
+                </div>
+                ${d.description ? `<p style="margin-bottom: 15px;">${d.description}</p>` : ''}
+                ${d.path ? `<div style="background: rgba(0, 212, 255, 0.1); padding: 10px; border-radius: 4px; margin-bottom: 15px; font-family: monospace; font-size: 11px; border-left: 3px solid #00d4ff;">📁 ${d.path}</div>` : ''}
+                ${d.dependencies ? `<p style="font-size: 12px; margin-bottom: 10px;"><strong>Dependencies:</strong> ${d.dependencies}</p>` : ''}
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0, 212, 255, 0.3);">
+                    <p style="font-size: 11px; color: #a4a4a4;">Click other nodes to explore related components.</p>
+                </div>
+            `;
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        function populateSidebar() {
+            const pages = architectureData.nodes.filter(n => n.type === 'page');
+            const hooks = architectureData.nodes.filter(n => n.type === 'hook').slice(0, 5);
+            const services = architectureData.nodes.filter(n => n.type === 'service');
+
+            document.getElementById('pagesList').innerHTML = pages.map(p =>
+                `<div class="node-item" onclick="highlightNode('${p.id}')">${p.name}</div>`
+            ).join('');
+
+            document.getElementById('hooksList').innerHTML = hooks.map(h =>
+                `<div class="node-item" onclick="highlightNode('${h.id}')">${h.name}</div>`
+            ).join('');
+
+            document.getElementById('servicesList').innerHTML = services.map(s =>
+                `<div class="node-item" onclick="highlightNode('${s.id}')">${s.name}</div>`
+            ).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('stat-components').textContent = architectureData.nodes.filter(n => n.type === 'component').length;
+            document.getElementById('stat-hooks').textContent = architectureData.nodes.filter(n => n.type === 'hook').length;
+            document.getElementById('stat-services').textContent = architectureData.nodes.filter(n => n.type === 'service').length;
+            document.getElementById('stat-pages').textContent = architectureData.nodes.filter(n => n.type === 'page').length;
+            document.getElementById('stat-total').textContent = architectureData.nodes.length;
+        }
+
+        function highlightNode(nodeId) {
+            nodeElements.style('opacity', d => {
+                if (d.id === nodeId) return 1;
+                const linked = architectureData.links.some(l =>
+                    (l.source.id === nodeId && l.target.id === d.id) ||
+                    (l.source.id === d.id && l.target.id === nodeId)
+                );
+                return linked ? 0.7 : 0.2;
+            });
+
+            linkElements.style('opacity', d => {
+                if (d.source.id === nodeId || d.target.id === nodeId) return 1;
+                return 0.1;
+            });
+
+            setTimeout(() => {
+                nodeElements.style('opacity', 1);
+                linkElements.style('opacity', 1);
+            }, 3000);
+        }
+
+        function filterByType(type) {
+            nodeElements.style('opacity', d => d.type === type ? 1 : 0.2);
+            linkElements.style('opacity', 0.1);
+            setTimeout(() => {
+                nodeElements.style('opacity', 1);
+                linkElements.style('opacity', 1);
+            }, 2000);
+        }
+
+        function handleSearch(event) {
+            const query = event.target.value.toLowerCase();
+            nodeElements.style('opacity', d => 
+                d.name.toLowerCase().includes(query) || d.type.includes(query) ? 1 : 0.2
+            );
+        }
+
+        function resetZoom() {
+            svg.transition().duration(750).call(
+                d3.zoom().transform,
+                d3.zoomIdentity.translate(svg.node().clientWidth / 2, svg.node().clientHeight / 2).scale(1)
+            );
+        }
+
+        function togglePhysics() {
+            if (simulation.alpha() > 0) {
+                simulation.stop();
+            } else {
+                simulation.alpha(1).restart();
+            }
+        }
+
+        function showDocumentation() {
+            const modal = document.getElementById('modal');
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div style="font-size: 12px; line-height: 1.6;">
+                    <h3 style="color: #00d4ff; margin-bottom: 10px;">MacroScope Architecture</h3>
+                    <p style="margin-bottom: 15px;">A multi-platform Performance OS tracking Sleep, Nutrition, and Activity.</p>
+                    
+                    <h4 style="color: #ffd93d; margin-top: 15px; margin-bottom: 8px;">🏗️ Architecture Layers</h4>
+                    <ul style="margin-left: 15px; margin-bottom: 15px;">
+                        <li><strong>UI Layer:</strong> React components with Tailwind CSS</li>
+                        <li><strong>State Layer:</strong> Context API + Custom Hooks</li>
+                        <li><strong>Business Logic:</strong> Services for domain operations</li>
+                        <li><strong>Data Layer:</strong> Supabase API & RPC functions</li>
+                    </ul>
+
+                    <h4 style="color: #4ecdc4; margin-top: 15px; margin-bottom: 8px;">🔗 Key Technologies</h4>
+                    <ul style="margin-left: 15px; margin-bottom: 15px;">
+                        <li>React 18.3 with TypeScript</li>
+                        <li>Framer Motion for animations</li>
+                        <li>Supabase for backend</li>
+                        <li>Tailwind CSS for styling</li>
+                        <li>Recharts for visualization</li>
+                    </ul>
+
+                    <h4 style="color: #6bcf7f; margin-top: 15px; margin-bottom: 8px;">📊 Component Statistics</h4>
+                    <ul style="margin-left: 15px;">
+                        <li>6 main pages</li>
+                        <li>23 reusable UI components</li>
+                        <li>11 custom hooks</li>
+                        <li>8 business services</li>
+                        <li>40+ API methods</li>
+                    </ul>
+                </div>
+            `;
+            modal.classList.add('show');
+        }
+
+        function zoomIn() {
+            svg.transition().duration(300).call(
+                d3.zoom().transform,
+                d3.zoomIdentity.scale(currentZoom * 1.2)
+            );
+        }
+
+        function zoomOut() {
+            svg.transition().duration(300).call(
+                d3.zoom().transform,
+                d3.zoomIdentity.scale(currentZoom * 0.8)
+            );
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            initializeGraph();
+            window.addEventListener('resize', () => {
+                initializeGraph();
+            });
+        });
+
+        // Close modal on outside click
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') closeModal();
+        });
+    </script>
+</body>
+</html>
