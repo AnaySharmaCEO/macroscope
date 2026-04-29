@@ -4,7 +4,9 @@ MacroScope is a multi-platform Performance OS designed to track and optimize hum
 
 ![MacroScope Banner](https://i.ibb.co/TB6rCFvC/image.jpg)
 
+
 ## 🚀 Key Features
+
 
 - **Unified Performance Tracking**: Monitor Sleep, Nutrition, and Activity in one centralized "Control Center".
 - **Signal System**: Replaces traditional "insights" with automated, system-driven alerts that identify how one system affects another (e.g., *"Late meals are reducing sleep consistency"*).
