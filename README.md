@@ -2,9 +2,6 @@
 
 MacroScope is a multi-platform Performance OS designed to track and optimize human performance across three core systems: **Sleep**, **Nutrition**, and **Activity**. Built with a focus on strict architectural separation and system-driven insights, it provides a unified experience across Web, Desktop, and Mobile.
 
-![MacroScope Banner](https://i.ibb.co/TB6rCFvC/image.jpg)
-
-
 ## 🚀 Key Features
 
 
