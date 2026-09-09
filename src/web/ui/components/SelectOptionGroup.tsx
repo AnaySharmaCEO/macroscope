@@ -18,23 +18,29 @@ export function SelectOptionGroup({
 }: SelectOptionGroupProps) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-xs tracking-wider uppercase text-[#737373]">{label}</label>
+      <label className="text-xs text-[var(--text-2)] font-medium">{label}</label>
       <div className="flex flex-wrap gap-2">
-        {options.map((option) => (
-          <button
-            key={option.value}
-            onClick={() => onChange(option.value)}
-            className={`
-              px-4 py-2 text-sm rounded border transition-all duration-150 active:scale-[0.98]
-              ${value === option.value 
-                ? 'border-[#3b82f6] bg-[#3b82f6] text-white' 
-                : 'border-[#262626] bg-[#1a1a1a] text-[#e5e5e5] hover:border-[#404040]'
-              }
-            `}
-          >
-            {option.label}
-          </button>
-        ))}
+        {options.map((option) => {
+          const isSelected = value === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onChange(option.value)}
+              className={`
+                px-4 py-2 text-sm font-medium transition-all duration-150 cursor-pointer
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]
+                ${isSelected 
+                  ? 'border border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-ink)] font-semibold shadow-xs' 
+                  : 'border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:border-[var(--border-strong)] hover:text-[var(--text-1)]'
+                }
+              `}
+              style={{ borderRadius: 'var(--radius-sm)' }}
+            >
+              {option.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

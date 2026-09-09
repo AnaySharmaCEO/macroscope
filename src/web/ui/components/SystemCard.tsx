@@ -12,23 +12,20 @@ interface SystemCardProps {
 }
 
 export function SystemCard({ label, value, status, trend, progress }: SystemCardProps) {
-  const getStatusColor = () => {
+  const getStatusTokens = () => {
     switch (status) {
-      case 'good': return '#10b981';
-      case 'low': return '#ef4444';
-      case 'high': return '#f59e0b';
-      default: return '#737373';
+      case 'good': 
+        return { color: 'var(--good)', bg: 'var(--good-soft)', label: 'Good' };
+      case 'low': 
+        return { color: 'var(--danger)', bg: 'var(--danger-soft)', label: 'Low' };
+      case 'high': 
+        return { color: 'var(--warn)', bg: 'var(--warn-soft)', label: 'High' };
+      default: 
+        return { color: 'var(--text-3)', bg: 'var(--surface)', label: 'Stable' };
     }
   };
 
-  const getStatusLabel = () => {
-    switch (status) {
-      case 'good': return 'Good';
-      case 'low': return 'Low';
-      case 'high': return 'High';
-      default: return 'Unknown';
-    }
-  };
+  const statusTokens = getStatusTokens();
 
   const getTrendIcon = () => {
     if (trend === 'up') return '↑';
@@ -36,43 +33,79 @@ export function SystemCard({ label, value, status, trend, progress }: SystemCard
     return '';
   };
 
-  const progressColor = getStatusColor();
-
   return (
-    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 group">
-      <div className="flex items-center justify-between mb-3">
-        <div className="text-xs uppercase tracking-wider text-[#737373]">
+    <div 
+      style={{
+        backgroundColor: 'var(--surface-2)',
+        borderColor: 'var(--border)',
+        borderRadius: 'var(--card-radius)',
+        padding: 'var(--space-4)',
+      }}
+      className="border transition-colors duration-150"
+    >
+      <div className="flex items-center justify-between mb-2.5">
+        <span 
+          style={{
+            fontSize: 'var(--text-caption)',
+            color: 'var(--text-3)',
+            fontWeight: 'var(--weight-medium)' as any,
+          }}
+        >
           {label}
-        </div>
-        <div className="text-xs text-[#737373]">
-          {getStatusLabel()}
-        </div>
+        </span>
+        <span 
+          style={{
+            backgroundColor: statusTokens.bg,
+            color: statusTokens.color,
+            borderRadius: 'var(--radius-pill)',
+            padding: '2px 8px',
+            fontSize: 'var(--text-caption)',
+            fontWeight: 'var(--weight-semibold)' as any,
+          }}
+        >
+          {statusTokens.label}
+        </span>
       </div>
       
       <div className="flex items-baseline gap-2 mb-3">
-        <div className="text-2xl font-light transition-all duration-300 group-hover:scale-105">
+        <div 
+          style={{
+            fontSize: '20px',
+            fontWeight: 'var(--weight-medium)' as any,
+            color: 'var(--text)',
+          }}
+        >
           {value}
         </div>
         {trend && (
-          <div 
-            className="text-sm transition-transform duration-300 group-hover:scale-110"
-            style={{ color: progressColor }}
+          <span 
+            className="text-xs"
+            style={{ color: statusTokens.color }}
           >
             {getTrendIcon()}
-          </div>
+          </span>
         )}
       </div>
       
       {/* Progress bar */}
-      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+      <div 
+        style={{
+          backgroundColor: 'var(--progress-track)',
+          height: 'var(--progress-height, 6px)',
+          borderRadius: 'var(--progress-radius, var(--radius-pill))',
+        }}
+        className="overflow-hidden"
+      >
         <div 
-          className="h-full rounded-full transition-all duration-700 ease-out"
           style={{ 
             width: `${Math.max(0, Math.min(100, progress))}%`,
-            backgroundColor: progressColor
+            backgroundColor: statusTokens.color,
+            borderRadius: 'var(--progress-radius, var(--radius-pill))',
           }}
+          className="h-full transition-all duration-500 ease-out"
         />
       </div>
     </div>
   );
 }
+

@@ -74,34 +74,56 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#e5e5e5] flex items-center justify-center p-6">
+    <div 
+      className="min-h-screen flex items-center justify-center p-6"
+      style={{
+        backgroundColor: 'var(--background)',
+        color: 'var(--text-1)',
+      }}
+    >
       <div className="max-w-2xl w-full space-y-6">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl tracking-tight mb-2">MacroScope</h1>
-          <p className="text-sm text-[#737373] tracking-wide">
-            PERFORMANCE OS
+        <div className="text-center mb-8">
+          <h1 className="font-serif text-3xl font-semibold text-[var(--text-1)] tracking-tight mb-2">MacroScope</h1>
+          <p className="text-xs font-medium text-[var(--text-3)] uppercase tracking-wider">
+            Performance OS
           </p>
-          <p className="text-sm text-[#737373] mt-4">
+          <p className="text-sm text-[var(--text-2)] mt-2">
             Initialize your system to begin monitoring
           </p>
         </div>
 
-        {/* Progress */}
+        {/* Step indicators: current = var(--accent), done = var(--good), future = var(--surface-2) */}
         <div className="flex gap-2 mb-8">
-          <div className={`flex-1 h-1 ${step >= 1 ? 'bg-[#3b82f6]' : 'bg-[#262626]'}`} />
-          <div className={`flex-1 h-1 ${step >= 2 ? 'bg-[#3b82f6]' : 'bg-[#262626]'}`} />
-          <div className={`flex-1 h-1 ${step >= 3 ? 'bg-[#3b82f6]' : 'bg-[#262626]'}`} />
+          {[1, 2, 3].map((s) => {
+            let barBg = 'var(--surface-2)';
+            if (step > s) barBg = 'var(--good)';
+            else if (step === s) barBg = 'var(--accent)';
+            return (
+              <div 
+                key={s} 
+                className="flex-1 h-1 rounded-full transition-colors duration-300"
+                style={{ backgroundColor: barBg }}
+              />
+            );
+          })}
         </div>
 
         {/* Step 1: Agreements */}
         {step === 1 && (
-          <FormContainer title="System Initialization">
+          <FormContainer title="System initialization">
             <div className="space-y-6">
-              <div className="p-4 bg-blue-900/20 border border-blue-800 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-200 mb-2">Early Access Notice</h3>
-                <p className="text-xs text-blue-300 leading-relaxed">
-                  MacroScope Performance OS is currently in early access. By proceeding, you acknowledge that features may change, and the system is still being actively developed.
+              <div 
+                className="p-4 border"
+                style={{
+                  backgroundColor: 'var(--surface-2)',
+                  borderColor: 'var(--border)',
+                  borderRadius: 'var(--radius-sm)',
+                }}
+              >
+                <h3 className="text-sm font-semibold text-[var(--text-1)] mb-1">Early access notice</h3>
+                <p className="text-xs text-[var(--text-2)] leading-relaxed">
+                  MacroScope Performance OS is designed to guide your daily performance habits through data-driven baseline monitoring. Features and models are actively updated.
                 </p>
               </div>
               
@@ -111,84 +133,79 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   id="agreements"
                   checked={agreedToTerms}
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-blue-600 focus:ring-blue-600 focus:ring-offset-zinc-900"
+                  className="mt-1 h-4 w-4 rounded cursor-pointer accent-[var(--accent)]"
                 />
-                <label htmlFor="agreements" className="text-sm text-zinc-400">
-                  I accept the Terms of Service and Privacy Policy, and understand that my health data will be processed to provide insights.
+                <label htmlFor="agreements" className="text-xs text-[var(--text-2)] cursor-pointer leading-relaxed">
+                  I accept the Terms of Service and Privacy Policy, and agree that health and activity inputs will be processed to generate performance insights.
                 </label>
               </div>
 
-              <ActionButton
-                onClick={handleNext}
-                disabled={!agreedToTerms}
-                fullWidth
-              >
-                Accept & Continue
-              </ActionButton>
+              <div className="pt-2">
+                <ActionButton
+                  variant="primary"
+                  onClick={handleNext}
+                  disabled={!agreedToTerms}
+                  fullWidth
+                >
+                  Accept & continue
+                </ActionButton>
+              </div>
             </div>
           </FormContainer>
         )}
 
         {/* Step 2: Basic Info */}
         {step === 2 && (
-          <FormContainer title="Basic Information">
-            <p className="text-sm text-[#737373] mb-4">
-              Tell us about yourself to get started
+          <FormContainer title="Basic information">
+            <p className="text-xs text-[var(--text-2)] mb-4">
+              Enter your physical baseline to calibrate tracking models
             </p>
             <InputField
-              label="Display Name"
+              label="Display name"
               value={name}
               onChange={v => setName(String(v))}
               type="text"
               placeholder="e.g., Alex"
             />
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <InputField
-                  label="Age"
-                  value={age}
-                  onChange={v => setAge(String(v))}
-                  type="number"
-                  placeholder="e.g., 24"
-                />
-              </div>
-              <div className="flex-1">
-                <SelectOptionGroup
-                  label="Gender"
-                  value={gender}
-                  onChange={(value) => setGender(value as any)}
-                  options={[
-                    { value: 'male', label: 'Male' },
-                    { value: 'female', label: 'Female' },
-                    { value: 'other', label: 'Other' },
-                  ]}
-                />
-              </div>
+            <div className="grid grid-cols-2 gap-4">
+              <InputField
+                label="Age"
+                value={age}
+                onChange={v => setAge(String(v))}
+                type="number"
+                placeholder="e.g., 24"
+              />
+              <SelectOptionGroup
+                label="Gender"
+                value={gender}
+                onChange={(value) => setGender(value as any)}
+                options={[
+                  { value: 'male', label: 'Male' },
+                  { value: 'female', label: 'Female' },
+                  { value: 'other', label: 'Other' },
+                ]}
+              />
             </div>
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <InputField
-                  label="Height"
-                  value={height}
-                  onChange={v => setHeight(String(v))}
-                  type="number"
-                  unit="cm"
-                  placeholder="175"
-                />
-              </div>
-              <div className="flex-1">
-                <InputField
-                  label="Weight"
-                  value={weight}
-                  onChange={v => setWeight(String(v))}
-                  type="number"
-                  unit="kg"
-                  placeholder="70"
-                />
-              </div>
+            <div className="grid grid-cols-2 gap-4">
+              <InputField
+                label="Height"
+                value={height}
+                onChange={v => setHeight(String(v))}
+                type="number"
+                unit="cm"
+                placeholder="175"
+              />
+              <InputField
+                label="Weight"
+                value={weight}
+                onChange={v => setWeight(String(v))}
+                type="number"
+                unit="kg"
+                placeholder="70"
+              />
             </div>
             <InputField
-              label="Body Fat (optional)"
+              label="Body fat percentage (optional)"
               value={bodyfatPercentage}
               onChange={v => setBodyfatPercentage(String(v))}
               type="number"
@@ -196,22 +213,23 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               placeholder="e.g., 18"
             />
             <InputField
-              label="Daily Step Target"
+              label="Daily step target"
               value={stepTarget}
               onChange={v => setStepTarget(String(v))}
               type="number"
               unit="steps"
               placeholder="e.g., 10000"
             />
-            <div className="flex gap-3 mt-6">
+            <div className="flex gap-3 pt-4">
               <ActionButton
+                variant="ghost"
                 onClick={() => setStep(1)}
-                variant="secondary"
                 fullWidth
               >
                 Back
               </ActionButton>
               <ActionButton
+                variant="primary"
                 onClick={handleNext}
                 disabled={!name || !age || !height || !weight || !stepTarget}
                 fullWidth
@@ -224,23 +242,23 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
         {/* Step 3: Baseline Inputs */}
         {step === 3 && (
-          <FormContainer title="Baseline Patterns">
-            <p className="text-sm text-[#737373] mb-4">
-              Help us understand your current patterns
+          <FormContainer title="Baseline patterns">
+            <p className="text-xs text-[var(--text-2)] mb-4">
+              Select current baseline habits to configure recommendation engines
             </p>
             <SelectOptionGroup
-              label="Primary Goal"
+              label="Primary goal"
               value={goal}
               onChange={(value) => setGoal(value as 'maintain' | 'improve' | 'lose' | 'gain')}
               options={[
                 { value: 'maintain', label: 'Maintain' },
-                { value: 'improve', label: 'Improve Performance' },
-                { value: 'lose', label: 'Lose Weight' },
-                { value: 'gain', label: 'Gain Weight' },
+                { value: 'improve', label: 'Improve performance' },
+                { value: 'lose', label: 'Lose weight' },
+                { value: 'gain', label: 'Gain weight' },
               ]}
             />
             <SelectOptionGroup
-              label="Activity Level"
+              label="Activity level"
               value={activityLevel}
               onChange={(value) => setActivityLevel(value as 'low' | 'moderate' | 'high')}
               options={[
@@ -250,7 +268,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               ]}
             />
             <SelectOptionGroup
-              label="Eating Pattern"
+              label="Eating pattern"
               value={eatingPattern}
               onChange={(value) => setEatingPattern(value as 'light' | 'balanced' | 'heavy')}
               options={[
@@ -260,7 +278,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               ]}
             />
             <InputField
-              label="Typical Sleep Duration"
+              label="Typical sleep duration"
               value={typicalSleepHours}
               onChange={(v) => setTypicalSleepHours(String(v))}
               type="number"
@@ -268,34 +286,35 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               placeholder="e.g., 7.5"
             />
             <InputField
-              label="Goal Timeline"
+              label="Goal timeline"
               value={goalTimelineWeeks}
               onChange={(v) => setGoalTimelineWeeks(String(v))}
               type="number"
               unit="weeks"
               placeholder="12"
             />
-            <div className="flex gap-3 mt-6">
+            <div className="flex gap-3 pt-4">
               <ActionButton
+                variant="ghost"
                 onClick={() => setStep(2)}
-                variant="secondary"
                 fullWidth
               >
                 Back
               </ActionButton>
               <ActionButton
+                variant="primary"
                 onClick={handleComplete}
                 disabled={submitting || !typicalSleepHours || !goalTimelineWeeks}
                 fullWidth
               >
-                {submitting ? 'Setting up...' : 'Complete Setup'}
+                {submitting ? 'Setting up...' : 'Complete setup'}
               </ActionButton>
             </div>
           </FormContainer>
         )}
 
         {/* Footer */}
-        <div className="text-center text-xs text-[#737373] mt-8">
+        <div className="text-center text-xs text-[var(--text-3)]">
           Step {step} of 3
         </div>
       </div>

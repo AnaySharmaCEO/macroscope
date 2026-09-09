@@ -52,30 +52,53 @@ function StepperCard({
   helperText
 }: StepperCardProps) {
   return (
-    <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-sm text-gray-400">{label}</p>
+    <div 
+      className="p-4 border"
+      style={{
+        backgroundColor: 'var(--card-bg)',
+        borderColor: 'var(--card-border)',
+        borderRadius: 'var(--card-radius)',
+      }}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-xs font-medium text-[var(--text-2)]">{label}</span>
         {helperText && (
-          <p className="text-xs text-gray-500">{helperText}</p>
+          <span className="text-xs text-[var(--text-3)]">{helperText}</span>
         )}
       </div>
 
       <div className="flex items-center justify-between">
         <button
+          type="button"
           onClick={() => value - step >= min && setValue(value - step)}
-          className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-lg"
+          className="w-9 h-9 min-w-[36px] min-h-[36px] border flex items-center justify-center text-base font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+          style={{
+            backgroundColor: 'var(--surface-2)',
+            borderColor: 'var(--border)',
+            borderRadius: 'var(--radius-sm)',
+            color: 'var(--text-1)',
+          }}
+          aria-label={`Decrease ${label}`}
         >
           −
         </button>
 
         <div className="text-center">
-          <p className="text-2xl font-semibold">{value}</p>
-          <p className="text-xs text-gray-500">{unit}</p>
+          <div className="font-serif text-2xl font-semibold text-[var(--text-1)]">{value}</div>
+          <div className="text-xs text-[var(--text-3)]">{unit}</div>
         </div>
 
         <button
+          type="button"
           onClick={() => (!max || value + step <= max) && setValue(value + step)}
-          className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-lg"
+          className="w-9 h-9 min-w-[36px] min-h-[36px] border flex items-center justify-center text-base font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+          style={{
+            backgroundColor: 'var(--surface-2)',
+            borderColor: 'var(--border)',
+            borderRadius: 'var(--radius-sm)',
+            color: 'var(--text-1)',
+          }}
+          aria-label={`Increase ${label}`}
         >
           +
         </button>
@@ -99,6 +122,7 @@ export function SettingsPage() {
   const [sleepTarget, setSleepTarget] = useState<number>(0);
   const [calorieTarget, setCalorieTarget] = useState<number>(0);
   const [activityTarget, setActivityTarget] = useState<number>(0);
+  const [goalTimelineWeeks, setGoalTimelineWeeks] = useState<number>(12);
   const [goalMode, setGoalMode] = useState<'maintain' | 'cut' | 'bulk'>('maintain');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
@@ -118,6 +142,9 @@ export function SettingsPage() {
       const currentUnits = settings?.units ?? 'metric';
       setProfileHeight(displayHeightValue(profile.height, currentUnits));
       setProfileWeight(displayWeightValue(profile.weight, currentUnits));
+      if (profile.goalTimelineWeeks) {
+        setGoalTimelineWeeks(profile.goalTimelineWeeks);
+      }
     }
     if (settings) {
       setSleepTarget(settings.sleepTarget);
@@ -187,9 +214,14 @@ export function SettingsPage() {
         activityTarget,
         goalMode,
       });
+      if (goalTimelineWeeks) {
+        await updateProfile({ goalTimelineWeeks });
+      }
       setActivePanel('root');
+      toast.success('System configuration saved');
     } catch (err) {
       console.error('Failed to update system config:', err);
+      toast.error('Failed to update system config');
     } finally {
       setSubmitting(false);
     }
@@ -252,13 +284,21 @@ export function SettingsPage() {
   // ROOT PANEL
   if (activePanel === 'root') {
     return (
-      <div className="p-8 max-w-4xl mx-auto">
-        <div className="mb-12">
-          <h1 className="text-3xl tracking-tight mb-2">Settings</h1>
-          <div className="text-sm text-[#737373]">Manage your account and preferences</div>
+      <div className="p-8 max-w-4xl mx-auto space-y-8">
+        <div>
+          <h1 className="font-serif text-3xl text-[var(--text-1)] tracking-tight mb-2">Settings</h1>
+          <p className="text-sm text-[var(--text-2)]">Manage your account and preferences</p>
         </div>
 
-        <div className="bg-[#0a0a0a] border border-[#262626] rounded overflow-hidden">
+        {/* ST1: Single card container with hairline row dividers */}
+        <div 
+          className="border overflow-hidden"
+          style={{
+            backgroundColor: 'var(--card-bg)',
+            borderColor: 'var(--card-border)',
+            borderRadius: 'var(--card-radius)',
+          }}
+        >
           <SettingsRow label="Account" onClick={() => setActivePanel('account')} />
           <SettingsRow label="Personalization" onClick={() => setActivePanel('systemConfig')} />
           <SettingsRow label="Preferences" onClick={() => setActivePanel('preferences')} />
@@ -274,14 +314,28 @@ export function SettingsPage() {
 if (activePanel === 'account') {
   return (
     <PanelLayout title="Account" onBack={handleBack}>
-      <div className="p-6 max-w-xl mx-auto space-y-6">
+      <div className="p-6 md:p-8 max-w-xl mx-auto space-y-6">
 
-        {/* PROFILE CARD */}
-        <div className="p-6 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-4">
+        {/* SA1: Profile Card with card tokens */}
+        <div 
+          className="p-6 border flex items-center gap-5"
+          style={{
+            backgroundColor: 'var(--card-bg)',
+            borderColor: 'var(--card-border)',
+            borderRadius: 'var(--card-radius)',
+          }}
+        >
 
           {/* PROFILE IMAGE */}
-          <div className="relative">
-            <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-xl overflow-hidden">
+          <div className="relative flex-shrink-0">
+            <div 
+              className="w-16 h-16 rounded-full flex items-center justify-center font-serif text-xl overflow-hidden border"
+              style={{
+                backgroundColor: 'var(--surface-2)',
+                borderColor: 'var(--border)',
+                color: 'var(--text-1)',
+              }}
+            >
               {profile?.avatar ? (
                 <img src={profile.avatar} alt="Profile" className="w-full h-full object-cover" />
               ) : (
@@ -290,7 +344,15 @@ if (activePanel === 'account') {
             </div>
 
             {/* UPLOAD BUTTON */}
-            <label className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-white text-black text-xs flex items-center justify-center cursor-pointer">
+            <label 
+              className="absolute bottom-0 right-0 w-6 h-6 rounded-full text-xs flex items-center justify-center cursor-pointer shadow-xs border"
+              style={{
+                backgroundColor: 'var(--accent)',
+                color: 'var(--accent-ink)',
+                borderColor: 'var(--accent)',
+              }}
+              title="Change photo"
+            >
               +
               <input
                 type="file"
@@ -316,22 +378,23 @@ if (activePanel === 'account') {
           </div>
 
           {/* NAME + EMAIL */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 space-y-2">
             <InputField
               label="Name"
               value={accountName}
               onChange={v => setAccountName(String(v))}
             />
 
-            <p className="text-sm text-gray-500 mt-2 truncate">
+            <p className="text-xs text-[var(--text-3)] truncate pt-0.5">
               {accountEmail}
             </p>
           </div>
 
         </div>
 
-        {/* SAVE BUTTON */}
+        {/* SA3: SAVE BUTTON (Primary token) */}
         <ActionButton
+          variant="primary"
           onClick={handleUpdateAccount}
           disabled={submitting}
           fullWidth
@@ -339,19 +402,24 @@ if (activePanel === 'account') {
           {submitting ? 'Saving...' : 'Save Changes'}
         </ActionButton>
 
-        {/* ACCOUNT ACTIONS */}
-        <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-
+        {/* SA2: LOG OUT (Ghost button with danger border) */}
+        <div className="pt-4">
           <button
+            type="button"
             onClick={() => {
               logout();
               toast.success('Logged out successfully');
             }}
-            className="w-full text-left text-sm text-red-400 hover:text-red-300 transition"
+            className="w-full py-2.5 px-4 text-sm font-medium transition-colors cursor-pointer border text-center"
+            style={{
+              borderColor: 'var(--danger)',
+              color: 'var(--danger)',
+              backgroundColor: 'transparent',
+              borderRadius: 'var(--radius-sm)',
+            }}
           >
             Log out
           </button>
-
         </div>
 
       </div>
@@ -391,11 +459,11 @@ if (activePanel === 'account') {
   // SYSTEM CONFIG PANEL
   if (activePanel === 'systemConfig') {
     return (
-    <PanelLayout title="Personalisation" onBack={handleBack}>
-      <div className="p-6 max-w-2xl mx-auto space-y-6">
+    <PanelLayout title="Personalization" onBack={handleBack}>
+      <div className="p-6 md:p-8 max-w-2xl mx-auto space-y-6">
 
   {/* USER BODY METRICS */}
-  <FormContainer title="Your Body">
+  <FormContainer title="Your body">
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <InputField
         label="Height"
@@ -415,12 +483,12 @@ if (activePanel === 'account') {
   </FormContainer>
 
   {/* GOAL SYSTEM */}
-<FormContainer title="Your Goal">
+<FormContainer title="Your goal">
   <div className="space-y-6">
 
     {/* GOAL TYPE */}
     <div className="space-y-2">
-      <p className="text-xs text-gray-500 uppercase tracking-wide">Goal Type</p>
+      <p className="text-xs font-medium text-[var(--text-2)]">Goal type</p>
       <SegmentedControl
         value={goalMode}
         onChange={(value) => setGoalMode(value as 'maintain' | 'cut' | 'bulk')}
@@ -434,17 +502,18 @@ if (activePanel === 'account') {
 
     {/* TIMELINE CARD */}
     <div className="space-y-3">
-      <p className="text-xs text-gray-500 uppercase tracking-wide">Timeline</p>
+      <p className="text-xs font-medium text-[var(--text-2)]">Timeline</p>
 
+      {/* SP3: Duration stepper bound to goalTimelineWeeks, capped at 104 weeks */}
       <StepperCard
         label="Duration"
-        value={activityTarget}
+        value={goalTimelineWeeks}
         setValue={(val) => {
           const minTime = goalMode === 'cut' ? 4 : goalMode === 'bulk' ? 6 : 2;
 
           if (val < minTime) return;
 
-          setActivityTarget(val);
+          setGoalTimelineWeeks(val);
 
           const isAggressive =
             (goalMode === 'cut' && val <= 5) ||
@@ -460,32 +529,54 @@ if (activePanel === 'account') {
         }}
         unit="weeks"
         min={goalMode === 'cut' ? 4 : goalMode === 'bulk' ? 6 : 2}
-        max={24}
+        max={104}
         step={1}
         helperText="Shorter = more aggressive"
       />
 
       {/* WARNING */}
       {showTimelineConfirm && !timelineConfirmed && (
-        <div className="p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/10 text-sm text-yellow-300">
-          ⚠️ Aggressive timeline — consistency will be harder.
+        <div 
+          className="p-4 border text-sm"
+          style={{
+            backgroundColor: 'var(--warn-soft)',
+            borderColor: 'var(--warn-border)',
+            color: 'var(--warn)',
+            borderRadius: 'var(--radius-sm)',
+          }}
+        >
+          <div className="font-medium mb-1">Aggressive timeline — consistency will be harder.</div>
 
           <div className="mt-3 flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => setTimelineConfirmed(true)}
-              className="px-3 py-1 rounded-lg bg-yellow-400 text-black text-xs font-medium transition active:scale-95"
+              className="px-3 py-1 text-xs font-semibold cursor-pointer border"
+              style={{
+                backgroundColor: 'var(--accent)',
+                color: 'var(--accent-ink)',
+                borderColor: 'var(--accent)',
+                borderRadius: 'var(--radius-sm)',
+              }}
             >
               I can commit
             </button>
             <button
+              type="button"
               onClick={() => {
-                setActivityTarget(
-                  goalMode === 'cut' ? 6 :
-                  goalMode === 'bulk' ? 8 : 3
+                setGoalTimelineWeeks(
+                  goalMode === 'cut' ? 8 :
+                  goalMode === 'bulk' ? 12 : 6
                 );
                 setShowTimelineConfirm(false);
               }}
-              className="px-3 py-1 rounded-lg bg-white/10 text-xs transition active:scale-95"
+              className="px-3 py-1 text-xs font-medium cursor-pointer border"
+              style={{
+                backgroundColor: 'var(--surface-2)',
+                color: 'var(--text-1)',
+                borderColor: 'var(--border)',
+                borderRadius: 'var(--radius-sm)',
+              }}
             >
               Adjust
             </button>
@@ -495,8 +586,15 @@ if (activePanel === 'account') {
     </div>
 
     {/* SYSTEM FEEDBACK */}
-    <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-400">
-      Your targets will adapt based on your goal and timeline.
+    <div 
+      className="p-4 border text-xs text-[var(--text-2)]"
+      style={{
+        backgroundColor: 'var(--surface-2)',
+        borderColor: 'var(--border)',
+        borderRadius: 'var(--radius-sm)',
+      }}
+    >
+      Your targets will adapt automatically based on your goal and timeline.
     </div>
 
   </div>
@@ -509,10 +607,10 @@ if (activePanel === 'account') {
 
     {/* SLEEP CONTROL */}
     <div className="space-y-3">
-      <p className="text-xs text-gray-500 uppercase tracking-wide">Daily Target</p>
+      <p className="text-xs font-medium text-[var(--text-2)]">Daily target</p>
 
       <StepperCard
-        label="Sleep Duration"
+        label="Sleep duration"
         value={sleepTarget}
         setValue={(val) => {
           if (val < 6) return;
@@ -536,22 +634,44 @@ if (activePanel === 'account') {
 
       {/* WARNING */}
       {showSleepConfirm && !sleepConfirmed && (
-        <div className="p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/10 text-sm text-yellow-300">
-          ⚠️ Below optimal sleep — recovery may drop.
+        <div 
+          className="p-4 border text-sm"
+          style={{
+            backgroundColor: 'var(--warn-soft)',
+            borderColor: 'var(--warn-border)',
+            color: 'var(--warn)',
+            borderRadius: 'var(--radius-sm)',
+          }}
+        >
+          <div className="font-medium mb-1">Below optimal sleep — recovery and performance may drop.</div>
 
           <div className="mt-3 flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => setSleepConfirmed(true)}
-              className="px-3 py-1 rounded-lg bg-yellow-400 text-black text-xs font-medium transition active:scale-95"
+              className="px-3 py-1 text-xs font-semibold cursor-pointer border"
+              style={{
+                backgroundColor: 'var(--accent)',
+                color: 'var(--accent-ink)',
+                borderColor: 'var(--accent)',
+                borderRadius: 'var(--radius-sm)',
+              }}
             >
               I understand
             </button>
             <button
+              type="button"
               onClick={() => {
                 setSleepTarget(7.5);
                 setShowSleepConfirm(false);
               }}
-              className="px-3 py-1 rounded-lg bg-white/10 text-xs transition active:scale-95"
+              className="px-3 py-1 text-xs font-medium cursor-pointer border"
+              style={{
+                backgroundColor: 'var(--surface-2)',
+                color: 'var(--text-1)',
+                borderColor: 'var(--border)',
+                borderRadius: 'var(--radius-sm)',
+              }}
             >
               Use optimal
             </button>
@@ -561,14 +681,22 @@ if (activePanel === 'account') {
     </div>
 
     {/* SLEEP GUIDANCE */}
-    <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-400">
-      Consistent sleep improves energy, recovery, and long-term performance.
+    <div 
+      className="p-4 border text-xs text-[var(--text-2)]"
+      style={{
+        backgroundColor: 'var(--surface-2)',
+        borderColor: 'var(--border)',
+        borderRadius: 'var(--radius-sm)',
+      }}
+    >
+      Consistent sleep improves energy, cognitive clarity, and overnight cellular repair.
     </div>
 
   </div>
 </FormContainer>
-  {/* SAVE */}
+  {/* SP5: SAVE (Primary token) */}
   <ActionButton
+    variant="primary"
     onClick={handleUpdateSystemConfig}
     disabled={
       submitting ||
@@ -585,12 +713,12 @@ if (activePanel === 'account') {
   );
 }
 
-  // PREFERENCES PANEL
+  // PREFERENCES PANEL (SPR1-SPR2: max-width 500px, sentence case, primary button)
   if (activePanel === 'preferences') {
     return (
       <PanelLayout title="Preferences" onBack={handleBack}>
-        <div className="p-6">
-          <FormContainer title="App Preferences">
+        <div className="p-6 md:p-8 max-w-[500px] mx-auto">
+          <FormContainer title="App preferences">
             <SegmentedControl
               label="Theme"
               value={theme}
@@ -618,9 +746,16 @@ if (activePanel === 'account') {
                 { value: 'off', label: 'Off' },
               ]}
             />
-            <ActionButton onClick={handleUpdatePreferences} disabled={submitting} fullWidth>
-              {submitting ? 'Saving...' : 'Save Changes'}
-            </ActionButton>
+            <div className="pt-2">
+              <ActionButton 
+                variant="primary"
+                onClick={handleUpdatePreferences} 
+                disabled={submitting} 
+                fullWidth
+              >
+                {submitting ? 'Saving...' : 'Save Changes'}
+              </ActionButton>
+            </div>
           </FormContainer>
         </div>
       </PanelLayout>
@@ -631,10 +766,19 @@ if (activePanel === 'account') {
   if (activePanel === 'dataPrivacy') {
     return (
       <PanelLayout title="Data & Privacy" onBack={handleBack}>
-        <div className="bg-[#0a0a0a] border-t border-[#262626]">
-          <SettingsRow label="Export Data" onClick={handleExportData} />
-          <SettingsRow label="Clear All Data" onClick={() => setActivePanel('clearDataConfirm')} variant="danger" />
-          <SettingsRow label="Sync Status" value="Connected" />
+        <div className="p-6 md:p-8 max-w-xl mx-auto">
+          <div 
+            className="border overflow-hidden"
+            style={{
+              backgroundColor: 'var(--card-bg)',
+              borderColor: 'var(--card-border)',
+              borderRadius: 'var(--card-radius)',
+            }}
+          >
+            <SettingsRow label="Export Data" onClick={handleExportData} />
+            <SettingsRow label="Clear All Data" onClick={() => setActivePanel('clearDataConfirm')} variant="danger" />
+            <SettingsRow label="Sync Status" value="Connected" />
+          </div>
         </div>
       </PanelLayout>
     );
@@ -644,18 +788,25 @@ if (activePanel === 'account') {
   if (activePanel === 'clearDataConfirm') {
     return (
       <PanelLayout title="Clear All Data" onBack={handleBack}>
-        <div className="p-6">
-          <div className="mb-6">
-            <p className="text-sm text-[#737373]">
+        <div className="p-6 md:p-8 max-w-xl mx-auto space-y-6">
+          <div 
+            className="p-6 border"
+            style={{
+              backgroundColor: 'var(--card-bg)',
+              borderColor: 'var(--card-border)',
+              borderRadius: 'var(--card-radius)',
+            }}
+          >
+            <p className="text-sm text-[var(--text-2)] leading-relaxed">
               This will permanently delete all your tracked data including sleep, nutrition, and activity records. 
               This action cannot be undone.
             </p>
           </div>
           <div className="space-y-3">
             <ActionButton onClick={handleClearAllData} disabled={submitting} fullWidth variant="danger">
-              {submitting ? 'Clearing...' : 'Confirm Clear All Data'}
+              {submitting ? 'Clearing data...' : 'Confirm clear all data'}
             </ActionButton>
-            <ActionButton onClick={handleBack} fullWidth>
+            <ActionButton variant="ghost" onClick={handleBack} fullWidth>
               Cancel
             </ActionButton>
           </div>
@@ -668,11 +819,20 @@ if (activePanel === 'account') {
   if (activePanel === 'legal') {
     return (
       <PanelLayout title="Legal & Support" onBack={handleBack}>
-        <div className="bg-[#0a0a0a] border-t border-[#262626]">
-          <SettingsRow label="Terms of Service" onClick={() => setActivePanel('terms')} />
-          <SettingsRow label="Privacy Policy" onClick={() => setActivePanel('privacy')} />
-          <SettingsRow label="Support" onClick={() => setActivePanel('support')} />
-          <SettingsRow label="About" onClick={() => setActivePanel('about')} />
+        <div className="p-6 md:p-8 max-w-xl mx-auto">
+          <div 
+            className="border overflow-hidden"
+            style={{
+              backgroundColor: 'var(--card-bg)',
+              borderColor: 'var(--card-border)',
+              borderRadius: 'var(--card-radius)',
+            }}
+          >
+            <SettingsRow label="Terms of Service" onClick={() => setActivePanel('terms')} />
+            <SettingsRow label="Privacy Policy" onClick={() => setActivePanel('privacy')} />
+            <SettingsRow label="Support" onClick={() => setActivePanel('support')} />
+            <SettingsRow label="About" onClick={() => setActivePanel('about')} />
+          </div>
         </div>
       </PanelLayout>
     );
@@ -950,12 +1110,21 @@ if (activePanel === 'privacy') {
   if (activePanel === 'dangerZone') {
     return (
       <PanelLayout title="Danger Zone" onBack={handleBack}>
-        <div className="bg-[#0a0a0a] border-t border-[#262626]">
-          <SettingsRow 
-            label="Delete Account" 
-            onClick={() => setActivePanel('deleteAccountConfirm')} 
-            variant="danger" 
-          />
+        <div className="p-6 md:p-8 max-w-xl mx-auto">
+          <div 
+            className="border overflow-hidden"
+            style={{
+              backgroundColor: 'var(--card-bg)',
+              borderColor: 'var(--card-border)',
+              borderRadius: 'var(--card-radius)',
+            }}
+          >
+            <SettingsRow 
+              label="Delete Account" 
+              onClick={() => setActivePanel('deleteAccountConfirm')} 
+              variant="danger" 
+            />
+          </div>
         </div>
       </PanelLayout>
     );
@@ -965,18 +1134,25 @@ if (activePanel === 'privacy') {
   if (activePanel === 'deleteAccountConfirm') {
     return (
       <PanelLayout title="Delete Account" onBack={handleBack}>
-        <div className="p-6">
-          <div className="mb-6">
-            <p className="text-sm text-[#737373]">
+        <div className="p-6 md:p-8 max-w-xl mx-auto space-y-6">
+          <div 
+            className="p-6 border"
+            style={{
+              backgroundColor: 'var(--card-bg)',
+              borderColor: 'var(--card-border)',
+              borderRadius: 'var(--card-radius)',
+            }}
+          >
+            <p className="text-sm text-[var(--text-2)] leading-relaxed">
               This will permanently delete your account and all associated data. 
               This action cannot be undone.
             </p>
           </div>
           <div className="space-y-3">
             <ActionButton onClick={handleDeleteAccount} disabled={submitting} fullWidth variant="danger">
-              {submitting ? 'Deleting...' : 'Confirm Delete Account'}
+              {submitting ? 'Deleting account...' : 'Confirm delete account'}
             </ActionButton>
-            <ActionButton onClick={handleBack} fullWidth>
+            <ActionButton variant="ghost" onClick={handleBack} fullWidth>
               Cancel
             </ActionButton>
           </div>

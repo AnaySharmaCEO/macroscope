@@ -6,7 +6,7 @@
 interface InputFieldProps {
   label: string;
   value: string | number;
-  onChange: (value: string | number) => void;
+  onChange: (value: any) => void;
   type?: 'text' | 'number' | 'time';
   placeholder?: string;
   unit?: string;
@@ -29,18 +29,46 @@ export function InputField({
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-xs tracking-wider uppercase text-[#737373]">{label}</label>
+    <div className="flex flex-col gap-1.5">
+      {label && (
+        <label 
+          className="font-medium"
+          style={{ 
+            color: 'var(--text-2)', 
+            fontSize: 'var(--text-body-sm)',
+            lineHeight: 'var(--leading-normal)'
+          }}
+        >
+          {label}
+        </label>
+      )}
       <div className="flex items-center gap-2">
         <input
           type={type}
           value={value}
           onChange={handleChange}
           placeholder={placeholder}
-          className="flex-1 bg-[#0a0a0a] border border-[#262626] rounded px-3 py-2.5 text-sm text-[#e5e5e5] focus:outline-none focus:border-[#00D4FF] transition-colors duration-150"
+          style={{
+            backgroundColor: 'var(--input-bg)',
+            borderColor: 'var(--input-border)',
+            borderRadius: 'var(--input-radius)',
+            color: 'var(--input-text)',
+            fontSize: 'var(--input-font-size)',
+            padding: 'var(--input-padding)',
+          }}
+          className="flex-1 border transition-colors duration-150 focus:outline-none focus:border-[var(--input-border-focus)] focus:ring-2 focus:ring-[var(--accent)]/30"
         />
-        {unit && <span className="text-sm text-[#737373]">{unit}</span>}
+        {unit && (
+          <span 
+            style={{ 
+              color: 'var(--text-3)', 
+              fontSize: 'var(--text-body-sm)' 
+            }}
+          >
+            {unit}
+          </span>
+        )}
       </div>
     </div>
   );
-}
+}

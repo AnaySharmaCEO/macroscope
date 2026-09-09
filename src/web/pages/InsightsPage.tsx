@@ -59,7 +59,7 @@ export function InsightsPage() {
   if (loading) {
     return (
       <div className="p-8">
-        <div className="text-sm text-[#737373]">Loading insights...</div>
+        <div className="text-sm text-[var(--text-3)]">Loading insights...</div>
       </div>
     );
   }
@@ -68,7 +68,7 @@ export function InsightsPage() {
   if (!insight) {
     return (
       <div className="p-8">
-        <div className="text-sm text-[#737373]">Not enough data to generate insights.</div>
+        <div className="text-sm text-[var(--text-3)]">Not enough data to generate insights.</div>
       </div>
     );
   }
@@ -150,96 +150,279 @@ export function InsightsPage() {
   const unitLabel = units === 'imperial' ? 'lb' : 'kg';
 
   return (
-    <div className="p-6 md:p-8 max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl tracking-tight mb-2">Insights</h1>
-        <div className="text-sm text-[#737373]">Understand what's changing</div>
+    <div className="max-w-6xl mx-auto p-6 md:p-8">
+      {/* Page Header */}
+      <div className="mb-6">
+        <h1 
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '26px',
+            fontWeight: 'var(--weight-medium)',
+            color: 'var(--text)',
+            lineHeight: '1.2',
+          }}
+          className="mb-1"
+        >
+          Insights
+        </h1>
+        <p 
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '13px',
+            color: 'var(--text-2)',
+          }}
+        >
+          Cross-system performance analysis, correlation patterns, and weekly synthesis
+        </p>
       </div>
 
-      {/* Weekly Insight Preview */}
-      <InsightCard
-        title="Weekly Insight"
-        onClick={() => openPanel('weeklyInsight')}
-      >
-        {/* Score Tags Grid */}
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <ScoreTag label="Sleep" score={insight.scores.sleep} />
-          <ScoreTag label="Activity" score={insight.scores.activity} />
-          <ScoreTag label="Nutrition" score={insight.scores.nutrition} />
-        </div>
-
-        {/* Divider */}
-        <div className="border-b border-white/10 mb-4" />
-
-        {/* Summary */}
-        <div className="text-sm text-[#e5e5e5] line-clamp-2 leading-relaxed mb-4">
-          {insight.summary}
-        </div>
-
-        {/* Action Preview */}
-        <div className="flex items-center justify-between">
-          <div className="text-xs text-[#00D4FF]">
-            Fix: {insight.action.focus} → {insight.action.panelLink} panel
-          </div>
-          <div className="text-xs text-[#737373]">
-            Score: {insight.overallScore}
-          </div>
-        </div>
-      </InsightCard>
-
-      {/* Sleep Preview */}
-      <InsightCard
-        title="Sleep"
-        onClick={() => openPanel('sleep')}
-      >
-        <div className="flex justify-between items-center">
-          <div>
-            <div className="text-2xl font-light">{latestSleep?.duration.toFixed(1) || '—'}h</div>
-            <div className="text-xs text-[#737373] mt-1">last night</div>
-          </div>
-          <div className="text-right">
-            <div className="text-sm text-[#e5e5e5]">
-              Quality: {latestSleep?.quality || '—'}/5
+      {/* 2-Column Asymmetric Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-5 items-start">
+        {/* LEFT COLUMN: Dominant Weekly Insight Card */}
+        <div className="flex flex-col gap-5">
+          <InsightCard
+            title="Weekly cross-system insight"
+            onClick={() => openPanel('weeklyInsight')}
+          >
+            {/* Score Tags Grid */}
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              <ScoreTag label="Sleep" score={insight.scores.sleep} />
+              <ScoreTag label="Activity" score={insight.scores.activity} />
+              <ScoreTag label="Nutrition" score={insight.scores.nutrition} />
             </div>
+
+            {/* Hairline Divider */}
+            <div className="border-b border-[var(--border)] mb-4" />
+
+            {/* Summary Body */}
+            <p 
+              style={{
+                fontSize: '14px',
+                color: 'var(--text-2)',
+                lineHeight: '1.6',
+              }}
+              className="mb-5"
+            >
+              {insight.summary}
+            </p>
+
+            {/* Action Preview */}
+            <div className="flex items-center justify-between pt-2 border-t border-[var(--border)]">
+              <span
+                style={{
+                  fontSize: '13px',
+                  fontWeight: 'var(--weight-bold)',
+                  color: 'var(--accent)',
+                  borderBottom: '1px solid var(--accent)',
+                  paddingBottom: '1px',
+                }}
+              >
+                Deep dive {insight.action.focus.charAt(0).toUpperCase() + insight.action.focus.slice(1)} →
+              </span>
+              <div 
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-3)',
+                }}
+              >
+                Composite score: <strong style={{ color: 'var(--text)' }}>{insight.overallScore}</strong>
+              </div>
+            </div>
+          </InsightCard>
+
+          {/* Cross-System Connection Spotlight */}
+          <div 
+            style={{
+              background: 'linear-gradient(160deg, var(--surface), var(--surface-2))',
+              border: '1px solid var(--border)',
+              borderRadius: '16px',
+              padding: '24px 26px',
+              boxShadow: 'var(--shadow)',
+            }}
+          >
+            <div 
+              style={{
+                fontSize: '12px',
+                color: 'var(--accent)',
+                fontWeight: 'var(--weight-bold)',
+                marginBottom: '8px',
+              }}
+            >
+              Multi-week correlation
+            </div>
+            <p 
+              style={{
+                fontSize: '13.5px',
+                color: 'var(--text-2)',
+                lineHeight: '1.55',
+                marginBottom: '12px',
+              }}
+            >
+              Your sleep duration shifts by up to 48 minutes depending on whether meal pacing concludes 3 hours before sleep. Tracking these cross-system relationships reveals the levers behind your recovery.
+            </p>
+            <span 
+              style={{
+                fontSize: '13px',
+                fontWeight: 'var(--weight-bold)',
+                color: 'var(--text)',
+                borderBottom: '1.5px solid var(--live)',
+                paddingBottom: '2px',
+              }}
+            >
+              Explore sleep-nutrition synergy
+            </span>
           </div>
         </div>
-      </InsightCard>
 
-      {/* Nutrition Preview */}
-      <InsightCard
-        title="Nutrition"
-        onClick={() => openPanel('nutrition')}
-      >
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-[#737373]">Avg Calories</span>
-          <span className="text-2xl font-light">{avgCalories}</span>
-        </div>
-      </InsightCard>
+        {/* RIGHT COLUMN: Specific Subsystem Panels Stack */}
+        <div className="flex flex-col gap-4">
+          {/* Sleep Preview */}
+          <InsightCard
+            title="Sleep"
+            onClick={() => openPanel('sleep')}
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <div 
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '24px',
+                    fontWeight: 'var(--weight-medium)',
+                    color: 'var(--text)',
+                  }}
+                >
+                  {latestSleep?.duration.toFixed(1) || '—'}h
+                </div>
+                <div style={{ fontSize: '11.5px', color: 'var(--text-3)', marginTop: '2px' }}>
+                  Last night's duration
+                </div>
+              </div>
+              <div className="text-right">
+                <span 
+                  style={{
+                    backgroundColor: 'var(--surface-2)',
+                    color: 'var(--text)',
+                    borderRadius: 'var(--radius-pill)',
+                    padding: '3px 9px',
+                    fontSize: '11px',
+                    fontWeight: 'var(--weight-bold)',
+                  }}
+                >
+                  Quality {latestSleep?.quality || '—'} / 5
+                </span>
+              </div>
+            </div>
+          </InsightCard>
 
-      {/* Activity Preview */}
-      <InsightCard
-        title="Activity"
-        onClick={() => openPanel('activity')}
-      >
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-[#737373]">Avg Steps</span>
-          <span className="text-2xl font-light">{avgSteps.toLocaleString()}</span>
-        </div>
-      </InsightCard>
+          {/* Nutrition Preview */}
+          <InsightCard
+            title="Nutrition"
+            onClick={() => openPanel('nutrition')}
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <div 
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '24px',
+                    fontWeight: 'var(--weight-medium)',
+                    color: 'var(--text)',
+                  }}
+                >
+                  {avgCalories}
+                </div>
+                <div style={{ fontSize: '11.5px', color: 'var(--text-3)', marginTop: '2px' }}>
+                  Daily average calories
+                </div>
+              </div>
+              <span 
+                style={{
+                  backgroundColor: 'var(--surface-2)',
+                  color: 'var(--text-2)',
+                  borderRadius: 'var(--radius-pill)',
+                  padding: '3px 9px',
+                  fontSize: '11px',
+                  fontWeight: 'var(--weight-bold)',
+                }}
+              >
+                Pacing stable
+              </span>
+            </div>
+          </InsightCard>
 
-      {/* Weight Preview */}
-      <InsightCard
-        title="Weight"
-        onClick={() => openPanel('weight')}
-      >
-        <div className="flex justify-between items-center">
-          <span className="text-2xl font-light">{displayWeight.toFixed(1)} {unitLabel}</span>
-          <span className={`text-sm ${displayDelta < 0 ? 'text-[#10b981]' : 'text-[#ef4444]'}`}>
-            {displayDelta > 0 ? '+' : ''}{displayDelta.toFixed(1)} {unitLabel}
-          </span>
+          {/* Activity Preview */}
+          <InsightCard
+            title="Activity"
+            onClick={() => openPanel('activity')}
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <div 
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '24px',
+                    fontWeight: 'var(--weight-medium)',
+                    color: 'var(--text)',
+                  }}
+                >
+                  {avgSteps.toLocaleString()}
+                </div>
+                <div style={{ fontSize: '11.5px', color: 'var(--text-3)', marginTop: '2px' }}>
+                  Daily average steps
+                </div>
+              </div>
+              <span 
+                style={{
+                  backgroundColor: 'var(--good-soft)',
+                  color: 'var(--good)',
+                  borderRadius: 'var(--radius-pill)',
+                  padding: '3px 9px',
+                  fontSize: '11px',
+                  fontWeight: 'var(--weight-bold)',
+                }}
+              >
+                Active
+              </span>
+            </div>
+          </InsightCard>
+
+          {/* Weight Preview */}
+          <InsightCard
+            title="Weight"
+            onClick={() => openPanel('weight')}
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <div 
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '24px',
+                    fontWeight: 'var(--weight-medium)',
+                    color: 'var(--text)',
+                  }}
+                >
+                  {displayWeight.toFixed(1)} {unitLabel}
+                </div>
+                <div style={{ fontSize: '11.5px', color: 'var(--text-3)', marginTop: '2px' }}>
+                  Current trend
+                </div>
+              </div>
+              <span 
+                style={{
+                  backgroundColor: displayDelta < 0 ? 'var(--good-soft)' : 'var(--live-soft)',
+                  color: displayDelta < 0 ? 'var(--good)' : 'var(--live)',
+                  borderRadius: 'var(--radius-pill)',
+                  padding: '3px 9px',
+                  fontSize: '11px',
+                  fontWeight: 'var(--weight-bold)',
+                }}
+              >
+                {displayDelta > 0 ? '+' : ''}{displayDelta.toFixed(1)} {unitLabel}
+              </span>
+            </div>
+          </InsightCard>
         </div>
-      </InsightCard>
+      </div>
     </div>
   );
 }

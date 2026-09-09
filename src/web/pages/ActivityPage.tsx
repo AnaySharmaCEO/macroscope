@@ -1,6 +1,7 @@
 /**
  * MACROSCOPE PERFORMANCE OS - ACTIVITY PAGE
  * Activity system monitoring and control
+ * Structured faithfully to the 2-column desktop architecture from macroscope-desktop-system-v2.html
  */
 
 import { useState } from 'react';
@@ -66,7 +67,7 @@ export function ActivityPage() {
   if (loading) {
     return (
       <div className="p-8">
-        <div className="text-sm text-[#737373]">Loading activity data...</div>
+        <div className="text-sm text-[var(--text-3)]">Loading activity data...</div>
       </div>
     );
   }
@@ -74,7 +75,7 @@ export function ActivityPage() {
   if (error) {
     return (
       <div className="p-8">
-        <div className="text-sm text-[#dc2626]">Error: {error}</div>
+        <div className="text-sm text-[var(--danger)]">Error: {error}</div>
       </div>
     );
   }
@@ -96,208 +97,477 @@ export function ActivityPage() {
   const stepsTarget = settings?.activityTarget || 10000;
   const stepsProgress = (todaySteps / stepsTarget) * 100;
 
-  // Calculate progress bar color (gradient from red to yellow to green)
-  const getProgressColor = (progress: number) => {
-    if (progress < 50) {
-      // Red to Yellow (0-50%)
-      const ratio = progress / 50;
-      const r = 239; // #ef4444 red
-      const g = Math.round(68 + (234 - 68) * ratio); // Transition to #f59e0b yellow
-      const b = 68;
-      return `rgb(${r}, ${g}, ${b})`;
-    } else {
-      // Yellow to Green (50-100%)
-      const ratio = (progress - 50) / 50;
-      const r = Math.round(245 - (245 - 16) * ratio); // #f59e0b to #10b981
-      const g = Math.round(158 + (185 - 158) * ratio);
-      const b = Math.round(11 + (129 - 11) * ratio);
-      return `rgb(${r}, ${g}, ${b})`;
+  // Status color mapping
+  const getStatusBadge = (s: string) => {
+    switch (s.toLowerCase()) {
+      case 'stable':
+        return { bg: 'var(--good-soft)', text: 'var(--good)', label: 'Stable' };
+      case 'imbalanced':
+        return { bg: 'var(--warn-soft)', text: 'var(--warn)', label: 'Imbalanced' };
+      case 'low':
+        return { bg: 'var(--live-soft)', text: 'var(--live)', label: 'Needs attention' };
+      default:
+        return { bg: 'var(--good-soft)', text: 'var(--good)', label: 'Stable' };
     }
   };
 
-  // Status color mapping
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'stable': return '#10b981';
-      case 'imbalanced': return '#f59e0b';
-      case 'low': return '#ef4444';
-      default: return '#737373';
-    }
-  };
+  const statusBadge = getStatusBadge(status);
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="mb-12">
-        <h1 className="text-3xl tracking-tight mb-2">Activity System</h1>
-        <div className="text-sm text-[#737373]">Monitor movement and workouts</div>
-      </div>
-
-      {/* System State */}
-      <div className="mb-12">
-        <div className="flex items-center gap-3">
-          <div 
-            className="w-2 h-2 rounded-full" 
-            style={{ backgroundColor: getStatusColor(status) }}
-          />
-          <span className="text-sm uppercase tracking-wider text-[#737373]">
-            {status}
-          </span>
-        </div>
-      </div>
-
-      {/* PRIMARY METRIC - STEPS (DOMINANT) */}
-      <div className="mb-12">
-        <div className="text-xs tracking-wider uppercase text-[#737373] mb-3">STEPS</div>
-        <div className="tracking-tight mb-1 text-[40px]">
-          {todaySteps.toLocaleString()}<span className="text-3xl text-[#737373]"> / {stepsTarget.toLocaleString()}</span>
-        </div>
-        {/* Color gradient progress bar */}
-        <div className="mt-4 h-1 bg-[#262626] rounded-full overflow-hidden">
-          <div 
-            className="h-full transition-all duration-300"
-            style={{ 
-              width: `${Math.min(stepsProgress, 100)}%`,
-              backgroundColor: getProgressColor(stepsProgress)
+    <div className="max-w-6xl mx-auto p-6 md:p-8">
+      {/* Page Header */}
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '26px',
+              fontWeight: 'var(--weight-medium)',
+              color: 'var(--text)',
+              lineHeight: '1.2',
             }}
-          />
-        </div>
-      </div>
-
-      {/* WORKOUT SUMMARY */}
-      {todayData && (
-        <div className="mb-16">
-          <div className="tracking-wider uppercase text-[#737373] mb-3 text-[24px]">TODAY'S ACTIVITY</div>
-          <div className="flex gap-8">
-            <div>
-              <span className="text-xl text-[#737373]">Workouts: </span>
-              <span className="text-2xl">{todayWorkoutCount}</span>
-            </div>
-            <div>
-              <span className="text-xl text-[#737373]">Duration: </span>
-              <span className="text-2xl">{todayWorkoutDuration} min</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Primary Signal */}
-      {signals.length > 0 && (
-        <div className="mb-16">
-          <div className="text-xl leading-relaxed">
-            {signals[0].message}
-          </div>
-        </div>
-      )}
-      {signals.length === 0 && (
-        <div className="mb-16 text-sm text-[#737373]">
-          Log a few workouts and step days to unlock stronger activity insights.
-        </div>
-      )}
-
-      {insights && (
-        <div className="mb-16">
-          <div className="text-xs tracking-wider uppercase text-[#737373] mb-3">WEEKLY INSIGHT</div>
-          <div className="text-sm text-[#e5e5e5]">{insights.insight}</div>
-          <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-            <div className="p-4 border border-[#262626] rounded bg-[#0a0a0a]">
-              <div className="text-[#737373] text-xs uppercase tracking-wider">Avg Steps</div>
-              <div className="text-lg mt-1">{Math.round(insights.avg_steps).toLocaleString()}</div>
-            </div>
-            <div className="p-4 border border-[#262626] rounded bg-[#0a0a0a]">
-              <div className="text-[#737373] text-xs uppercase tracking-wider">Workout Days</div>
-              <div className="text-lg mt-1">{insights.workout_days} / {insights.days}</div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* PRIMARY ACTION - LOG WORKOUT */}
-      <div className="mb-12">
-        <div className="text-xs tracking-wider uppercase text-[#737373] mb-4">LOG WORKOUT</div>
-        <div className="space-y-4">
-          <InputField
-            label="Workout Name"
-            value={workoutName}
-            onChange={setWorkoutName}
-            placeholder="e.g., Morning Run"
-          />
-          <InputField
-            label="Duration"
-            value={workoutDuration}
-            onChange={setWorkoutDuration}
-            type="number"
-            unit="min"
-          />
-          <SelectOptionGroup
-            label="Intensity"
-            value={workoutIntensity}
-            onChange={(value) => setWorkoutIntensity(value as 'low' | 'moderate' | 'high')}
-            options={[
-              { value: 'low', label: 'Low' },
-              { value: 'moderate', label: 'Moderate' },
-              { value: 'high', label: 'High' },
-            ]}
-          />
-          <ActionButton
-            onClick={handleLogWorkout}
-            disabled={submittingWorkout || !workoutName || !workoutDuration}
-            fullWidth
+            className="mb-1"
           >
-            {submittingWorkout ? 'Logging...' : 'Log Workout'}
-          </ActionButton>
-        </div>
-      </div>
-
-      {/* SECONDARY ACTION - UPDATE STEPS */}
-      <div className="mb-16 pt-8 border-t border-[#262626]">
-        <div className="text-xs tracking-wider uppercase text-[#737373] mb-4">UPDATE STEPS</div>
-        <div className="space-y-4">
-          <InputField
-            label="Steps"
-            value={steps}
-            onChange={setSteps}
-            type="number"
-            placeholder="e.g., 10000"
-          />
-          <ActionButton
-            onClick={handleUpdateSteps}
-            disabled={submittingSteps || !steps}
-            fullWidth
+            Activity system
+          </h1>
+          <p 
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '13px',
+              color: 'var(--text-2)',
+            }}
           >
-            {submittingSteps ? 'Updating...' : 'Update Steps'}
-          </ActionButton>
+            Monitor step pacing, workout stimulus, and movement consistency
+          </p>
         </div>
+
+        {/* System State Pill */}
+        <span
+          style={{
+            backgroundColor: statusBadge.bg,
+            color: statusBadge.text,
+            borderRadius: 'var(--radius-pill)',
+            padding: '5px 12px',
+            fontSize: '11.5px',
+            fontWeight: 'var(--weight-bold)',
+          }}
+          className="inline-flex items-center gap-1.5"
+        >
+          <span>●</span>
+          <span>{statusBadge.label}</span>
+        </span>
       </div>
 
-      {/* SECONDARY METRICS */}
-      <div className="mb-12 pt-8 border-t border-[#262626]">
-        <div className="text-xs tracking-wider uppercase text-[#737373] mb-4">SECONDARY METRICS</div>
-        <div className="flex gap-12">
-          <div>
-            <div className="text-sm text-[#737373] mb-1">Avg Steps (7d)</div>
-            <div className="text-2xl">{Math.round(avgSteps).toLocaleString()}</div>
-          </div>
-          <div>
-            <div className="text-sm text-[#737373] mb-1">Total Workouts</div>
-            <div className="text-2xl">{totalWorkouts}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Additional Signals */}
-      {signals.length > 1 && (
-        <div className="mb-12">
-          <div className="text-xs tracking-wider uppercase text-[#737373] mb-3">ADDITIONAL SIGNALS</div>
-          <div className="space-y-2">
-            {signals.slice(1).map((signal) => (
-              <div key={signal.id} className="text-sm text-[#737373]">
-                {signal.message}
+      {/* 2-Column Asymmetric Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-5 items-start">
+        {/* LEFT COLUMN: Steps Hero, Workout Logger, & Quick Steps Entry */}
+        <div className="flex flex-col gap-5">
+          {/* Dominant Hero Card: Steps */}
+          <div 
+            style={{
+              backgroundColor: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '16px',
+              boxShadow: 'var(--shadow)',
+              padding: '28px 30px',
+            }}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <div 
+                  style={{
+                    fontSize: '12px',
+                    color: 'var(--text-3)',
+                    fontWeight: 'var(--weight-semibold)',
+                    marginBottom: '4px',
+                  }}
+                >
+                  Today's steps
+                </div>
+                <div className="flex items-baseline gap-2 mb-3">
+                  <span 
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: '36px',
+                      fontWeight: 'var(--weight-medium)',
+                      color: 'var(--text)',
+                      lineHeight: '1.1',
+                    }}
+                  >
+                    {todaySteps.toLocaleString()}
+                  </span>
+                  <span style={{ fontSize: '18px', color: 'var(--text-3)' }}>
+                    / {stepsTarget.toLocaleString()}
+                  </span>
+                </div>
               </div>
-            ))}
+
+              {todaySteps >= stepsTarget ? (
+                <span 
+                  style={{
+                    backgroundColor: 'var(--good-soft)',
+                    color: 'var(--good)',
+                    borderRadius: 'var(--radius-pill)',
+                    padding: '4px 10px',
+                    fontSize: '11.5px',
+                    fontWeight: 'var(--weight-bold)',
+                  }}
+                >
+                  Target hit
+                </span>
+              ) : (
+                <span 
+                  style={{
+                    backgroundColor: 'var(--accent-soft)',
+                    color: 'var(--accent)',
+                    borderRadius: 'var(--radius-pill)',
+                    padding: '4px 10px',
+                    fontSize: '11.5px',
+                    fontWeight: 'var(--weight-bold)',
+                  }}
+                >
+                  In progress
+                </span>
+              )}
+            </div>
+
+            {/* Tokenized progress bar */}
+            <div 
+              style={{
+                backgroundColor: 'var(--progress-track)',
+                height: '6px',
+                borderRadius: 'var(--radius-pill)',
+              }}
+              className="overflow-hidden mb-6"
+            >
+              <div 
+                style={{ 
+                  width: `${Math.min(stepsProgress, 100)}%`,
+                  backgroundColor: stepsProgress >= 100 ? 'var(--good)' : 'var(--accent)',
+                  borderRadius: 'var(--radius-pill)',
+                }}
+                className="h-full transition-all duration-500 ease-out"
+              />
+            </div>
+
+            {/* Primary Signal Box */}
+            {signals.length > 0 && (
+              <div 
+                style={{
+                  backgroundColor: 'var(--surface-2)',
+                  borderColor: 'var(--border)',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '14px 16px',
+                  fontSize: '13.5px',
+                  color: 'var(--text-2)',
+                  lineHeight: '1.55',
+                }}
+                className="border"
+              >
+                {signals[0].message}
+              </div>
+            )}
+          </div>
+
+          {/* Form Card: Log Workout */}
+          <div 
+            style={{
+              backgroundColor: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '16px',
+              boxShadow: 'var(--shadow)',
+              padding: '28px 30px',
+            }}
+          >
+            <div 
+              style={{
+                fontSize: '13.5px',
+                fontWeight: 'var(--weight-semibold)',
+                color: 'var(--text)',
+                marginBottom: '18px',
+              }}
+            >
+              Log workout
+            </div>
+
+            <div className="space-y-4">
+              <InputField
+                label="Workout name"
+                value={workoutName}
+                onChange={setWorkoutName}
+                placeholder="e.g., Morning run, Heavy lifting"
+              />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <InputField
+                  label="Duration"
+                  value={workoutDuration}
+                  onChange={setWorkoutDuration}
+                  type="number"
+                  unit="min"
+                />
+
+                <SelectOptionGroup
+                  label="Intensity"
+                  value={workoutIntensity}
+                  onChange={(value) => setWorkoutIntensity(value as 'low' | 'moderate' | 'high')}
+                  options={[
+                    { value: 'low', label: 'Low' },
+                    { value: 'moderate', label: 'Moderate' },
+                    { value: 'high', label: 'High' },
+                  ]}
+                />
+              </div>
+
+              <div className="pt-2">
+                <ActionButton
+                  variant="primary"
+                  onClick={handleLogWorkout}
+                  disabled={submittingWorkout || !workoutName || !workoutDuration}
+                  fullWidth
+                >
+                  {submittingWorkout ? 'Logging workout...' : 'Log workout'}
+                </ActionButton>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Steps Update Card */}
+          <div 
+            style={{
+              backgroundColor: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '16px',
+              boxShadow: 'var(--shadow)',
+              padding: '22px 24px',
+            }}
+          >
+            <div 
+              style={{
+                fontSize: '13px',
+                fontWeight: 'var(--weight-semibold)',
+                color: 'var(--text)',
+                marginBottom: '14px',
+              }}
+            >
+              Update step count
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 items-end">
+              <div className="flex-1 w-full">
+                <InputField
+                  label="Current steps"
+                  value={steps}
+                  onChange={setSteps}
+                  type="number"
+                  placeholder="e.g., 10000"
+                />
+              </div>
+              <ActionButton
+                variant="ghost"
+                onClick={handleUpdateSteps}
+                disabled={submittingSteps || !steps}
+                className="w-full sm:w-auto"
+              >
+                {submittingSteps ? 'Updating...' : 'Sync steps'}
+              </ActionButton>
+            </div>
           </div>
         </div>
-      )}
+
+        {/* RIGHT COLUMN: Workout History, Weekly Insights, & Cross-System Card */}
+        <div className="flex flex-col gap-4">
+          {/* 1. Today's Activity Snapshot */}
+          <div 
+            style={{
+              backgroundColor: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '16px',
+              padding: '22px 24px',
+              boxShadow: 'var(--shadow)',
+            }}
+          >
+            <div 
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-3)',
+                fontWeight: 'var(--weight-semibold)',
+                marginBottom: '14px',
+              }}
+            >
+              Today's activity output
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div 
+                style={{
+                  backgroundColor: 'var(--surface-2)',
+                  borderColor: 'var(--border)',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '14px',
+                }}
+                className="border"
+              >
+                <div style={{ fontSize: '11.5px', color: 'var(--text-3)', marginBottom: '4px' }}>
+                  Workouts
+                </div>
+                <div 
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '24px',
+                    fontWeight: 'var(--weight-medium)',
+                    color: 'var(--text)',
+                  }}
+                >
+                  {todayWorkoutCount}
+                </div>
+              </div>
+
+              <div 
+                style={{
+                  backgroundColor: 'var(--surface-2)',
+                  borderColor: 'var(--border)',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '14px',
+                }}
+                className="border"
+              >
+                <div style={{ fontSize: '11.5px', color: 'var(--text-3)', marginBottom: '4px' }}>
+                  Total duration
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span 
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: '24px',
+                      fontWeight: 'var(--weight-medium)',
+                      color: 'var(--text)',
+                    }}
+                  >
+                    {todayWorkoutDuration}
+                  </span>
+                  <span style={{ color: 'var(--text-3)', fontSize: '12px' }}>min</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Weekly Consistency Insight */}
+          {insights && (
+            <div 
+              style={{
+                backgroundColor: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: '16px',
+                padding: '22px 24px',
+                boxShadow: 'var(--shadow)',
+              }}
+            >
+              <div 
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-3)',
+                  fontWeight: 'var(--weight-semibold)',
+                  marginBottom: '8px',
+                }}
+              >
+                Weekly movement cadence
+              </div>
+
+              <p 
+                style={{
+                  fontSize: '13px',
+                  color: 'var(--text-2)',
+                  lineHeight: '1.55',
+                  marginBottom: '14px',
+                }}
+              >
+                {insights.insight}
+              </p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div 
+                  style={{
+                    backgroundColor: 'var(--surface-2)',
+                    borderColor: 'var(--border)',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '12px',
+                  }}
+                  className="border"
+                >
+                  <div style={{ fontSize: '11px', color: 'var(--text-3)', marginBottom: '3px' }}>
+                    7-day avg steps
+                  </div>
+                  <div 
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: '20px',
+                      fontWeight: 'var(--weight-medium)',
+                      color: 'var(--text)',
+                    }}
+                  >
+                    {Math.round(avgSteps).toLocaleString()}
+                  </div>
+                </div>
+
+                <div 
+                  style={{
+                    backgroundColor: 'var(--surface-2)',
+                    borderColor: 'var(--border)',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '12px',
+                  }}
+                  className="border"
+                >
+                  <div style={{ fontSize: '11px', color: 'var(--text-3)', marginBottom: '3px' }}>
+                    Active days
+                  </div>
+                  <div 
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: '20px',
+                      fontWeight: 'var(--weight-medium)',
+                      color: 'var(--text)',
+                    }}
+                  >
+                    {insights.workout_days} / {insights.days}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 3. Cross-System Recovery Connection */}
+          <div 
+            style={{
+              background: 'linear-gradient(160deg, var(--surface), var(--surface-2))',
+              border: '1px solid var(--border)',
+              borderRadius: '16px',
+              padding: '22px 24px',
+              boxShadow: 'var(--shadow)',
+            }}
+          >
+            <div 
+              style={{
+                fontSize: '12px',
+                color: 'var(--accent)',
+                fontWeight: 'var(--weight-bold)',
+                marginBottom: '8px',
+              }}
+            >
+              Stimulus & recovery loop
+            </div>
+            <p 
+              style={{
+                fontSize: '13.5px',
+                color: 'var(--text-2)',
+                lineHeight: '1.55',
+              }}
+            >
+              Hitting 8,000+ steps on days after short sleep activates lymphatic flushing and prevents evening lethargy, resetting your next sleep window.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
