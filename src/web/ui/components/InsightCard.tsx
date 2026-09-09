@@ -15,11 +15,16 @@ export function InsightCard({ title, children, onClick }: InsightCardProps) {
   return (
     <div
       onClick={onClick}
-      className={`p-5 rounded-2xl bg-white/5 border border-white/10 transition-all duration-300 ${
-        onClick ? 'hover:bg-white/10 cursor-pointer hover:border-white/20' : ''
+      style={{
+        backgroundColor: 'var(--card-bg)',
+        borderColor: 'var(--card-border)',
+        borderRadius: 'var(--card-radius)',
+      }}
+      className={`p-6 border transition-all duration-150 ${
+        onClick ? 'hover:border-[var(--border-strong)] cursor-pointer' : ''
       }`}
     >
-      <p className="text-xs text-[#737373] uppercase tracking-wider mb-3">{title}</p>
+      <div className="text-xs font-medium text-[var(--text-2)] mb-3">{title}</div>
       {children}
     </div>
   );

@@ -1,0 +1,442 @@
+/* ==========================================================================
+   MACROSCOPE DESIGN TOKENS  v3
+   Single source of truth for every visual decision in the app.
+
+   RULE: If a value you need doesn't exist here, add it to the correct
+   section FIRST, then consume it. Never hardcode a hex, raw px radius,
+   or inline shadow anywhere in component code.
+
+   SECTIONS:
+     1. Static primitives (font, scale, spacing, radius, motion, z-index)
+     2. Dark theme  [data-theme="dark"]
+     3. Light theme [data-theme="light"]
+     4. Component semantic aliases  :root
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. STATIC PRIMITIVES  — theme-independent
+   ========================================================================== */
+:root {
+
+  /* ── Fonts ─────────────────────────────────────────────────────────────── */
+  --font-display: 'Fraunces', serif;
+  /* Use ONLY for: page <h1>, card/section <h2>/<h3>, hero score numbers.
+     Nothing else. Not labels. Not buttons. Not table headers. */
+
+  --font-body: 'Inter', sans-serif;
+  /* Use for: everything else — body text, buttons, nav, table cells,
+     chips, tooltips, form labels, placeholders, captions. */
+
+
+  /* ── Type scale ─────────────────────────────────────────────────────────
+     All values in px. Use font-family and weight per role, not per size.
+     Do NOT introduce a size that falls between two adjacent steps.       */
+  --text-display-lg: 32px;   /* Fraunces  — single hero number per screen (score, streak hero) */
+  --text-display-md: 26px;   /* Fraunces  — page <h1>  */
+  --text-display-sm: 19px;   /* Fraunces  — card/section <h2>/<h3> */
+  --text-body-lg:    15px;   /* Inter     — primary reading copy, signal text */
+  --text-body:       13.5px; /* Inter     — default: buttons, nav labels, table cells, form fields */
+  --text-body-sm:    12.5px; /* Inter     — secondary/support copy, descriptions */
+  --text-caption:    11.5px; /* Inter     — chip labels, timestamps, axis labels, smallest metadata */
+
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-heavy:    800; /* Sparingly: emphasis on a single data value, never on headings */
+
+  --leading-tight:   1.3;  /* headings, hero numbers */
+  --leading-normal:  1.5;  /* buttons, labels, chips */
+  --leading-relaxed: 1.65; /* body paragraphs, signal descriptions */
+
+
+  /* ── Spacing (4 px base) ────────────────────────────────────────────────
+     Use these for padding, gap, margin. Never use raw px inline.         */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+
+  /* ── Radius: TWO-TIER RULE ──────────────────────────────────────────────
+     There are exactly three radius values. Do not invent a fourth.
+
+     --radius-sm   → buttons, inputs, nav items, table rows (structural,
+                       interactive, but not a container)
+     --radius-card → cards, modals, panels, drawers, popovers, tooltips
+                       (structural containers — they hold data)
+     --radius-pill → chips, tags, streak badges, notification dots,
+                       theme toggle, any "alive/status" element
+
+     Ask: "Is this telling the user what's happening right now?"
+       Yes → pill.   "Is it holding their data?"  Yes → card.
+       Is it a small interactive control?          Yes → sm.              */
+  --radius-sm:   8px;
+  --radius-card: 16px;
+  --radius-pill: 999px;
+
+
+  /* ── Motion ─────────────────────────────────────────────────────────────
+     Use the named durations. Do not hardcode ms anywhere else.
+     All transitions must respect prefers-reduced-motion (see base layer). */
+  --ease:          cubic-bezier(.4, 0, .2, 1);
+  --ease-spring:   cubic-bezier(.34, 1.56, .64, 1); /* only for deliberate "snap" moments */
+  --duration-fast: 120ms;  /* hover, focus ring, small state changes */
+  --duration-base: 200ms;  /* panel open/close, theme swap, tooltip reveal */
+  --duration-slow: 400ms;  /* ring/chart fill on mount — one moment per screen */
+
+
+  /* ── Z-index stack ──────────────────────────────────────────────────────
+     Never use a z-index value not in this list.                          */
+  --z-nav:             10;
+  --z-dropdown:        20;
+  --z-modal-backdrop:  40;
+  --z-modal:           50;
+  --z-toast:           60;
+}
+
+
+/* ==========================================================================
+   2. THEME: DARK  (default)
+   ========================================================================== */
+html[data-theme="dark"] {
+
+  /* Surfaces — 5 levels, use in order of depth/lift */
+  --bg:             #0B0C0D;  /* page background; outermost */
+  --sidebar:        #0E0F11;  /* sidebar panel */
+  --surface:        #151719;  /* cards, panels — primary containers */
+  --surface-2:      #1B1E21;  /* nested surfaces, hover fills, secondary cards */
+  --surface-modal:  #17191C;  /* modals — slightly lifted from --surface */
+
+  /* Borders */
+  --border:         #24272A;  /* default hairline on cards, inputs, nav */
+  --border-strong:  #31353A;  /* modal header divider, section separators needing more weight */
+
+  /* Text */
+  --text:           #F3F1EC;  /* primary — headings, hero numbers, active labels */
+  --text-2:         #8E939C;  /* secondary — descriptions, inactive nav, table body */
+  --text-3:         #5B6068;  /* tertiary — timestamps, placeholders, axis labels */
+  --text-on-accent: #1A1509;  /* text ON the accent-colored surface */
+
+  /* Brand accent — warm gold */
+  --accent:         #C9A66B;
+  --accent-hover:   #D6B67F;
+  --accent-ink:     #1A1509;  /* text/icon color when sitting on --accent bg */
+  --accent-soft:    rgba(201, 166, 107, .12); /* tinted bg for accent-themed chips/blocks */
+
+  /* Semantic status — each has a solid + a soft (tinted bg) variant */
+  --live:           #FF6F59;  --live-soft:    rgba(255, 111, 89,  .12);
+  --good:           #5FBE8D;  --good-soft:    rgba(95,  190, 141, .12);
+  --warn:           #F2A93B;  --warn-soft:    rgba(242, 169, 59,  .12);
+  --danger:         #E5484D;  --danger-soft:  rgba(229, 72,  77,  .13);
+  --info:           #6FA8DC;  --info-soft:    rgba(111, 168, 220, .12);
+
+  /* Chart palette — use in this exact sequence for multi-series data.
+     Never introduce an ad-hoc chart color outside this set.             */
+  --chart-1: #C9A66B;  /* accent / primary series */
+  --chart-2: #5FBE8D;  /* good / secondary series */
+  --chart-3: #6FA8DC;  /* info / tertiary series */
+  --chart-4: #F2A93B;  /* warn */
+  --chart-5: #FF6F59;  /* live / alert */
+  --chart-6: #9C8FD6;  /* purple — last resort for 6th series */
+  --chart-grid:       #24272A;
+  --chart-axis-label: #5B6068;
+
+  /* Elevation / shadow */
+  --shadow-flat:    0 1px 0 rgba(255, 255, 255, .02) inset;
+  --shadow-raised:  0 4px 16px rgba(0, 0, 0, .28);
+  --shadow-modal:   0 24px 64px rgba(0, 0, 0, .50);
+
+  /* Interaction */
+  --focus-ring:     0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+  --backdrop:       rgba(6, 7, 8, .60);
+}
+
+
+/* ==========================================================================
+   3. THEME: LIGHT
+   ========================================================================== */
+html[data-theme="light"] {
+
+  --bg:             #F4F2ED;
+  --sidebar:        #FFFFFF;
+  --surface:        #FFFFFF;
+  --surface-2:      #FAF8F3;
+  --surface-modal:  #FFFFFF;
+
+  --border:         #E5E0D5;
+  --border-strong:  #D8D0BF;
+
+  --text:           #241F19;
+  --text-2:         #756C5E;
+  --text-3:         #A69C8B;
+  --text-on-accent: #FFFFFF;
+
+  /* Darkened from dark-mode values for AA contrast on white surfaces */
+  --accent:         #8A5F2C;
+  --accent-hover:   #7A5226;
+  --accent-ink:     #FFFFFF;
+  --accent-soft:    rgba(138, 95, 44, .10);
+
+  --live:           #B23A5D;  --live-soft:    rgba(178, 58,  93,  .09);
+  --good:           #2F7A54;  --good-soft:    rgba(47,  122, 84,  .09);
+  --warn:           #9C6516;  --warn-soft:    rgba(156, 101, 22,  .10);
+  --danger:         #C22C31;  --danger-soft:  rgba(194, 44,  49,  .09);
+  --info:           #3468A6;  --info-soft:    rgba(52,  104, 166, .09);
+
+  --chart-1: #8A5F2C;
+  --chart-2: #2F7A54;
+  --chart-3: #3468A6;
+  --chart-4: #9C6516;
+  --chart-5: #B23A5D;
+  --chart-6: #6C5CA6;
+  --chart-grid:       #E5E0D5;
+  --chart-axis-label: #A69C8B;
+
+  --shadow-flat:    0 1px 2px rgba(40, 30, 15, .04);
+  --shadow-raised:  0 8px 24px rgba(40, 30, 15, .10);
+  --shadow-modal:   0 24px 64px rgba(40, 30, 15, .18);
+
+  --focus-ring:     0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+  --backdrop:       rgba(40, 32, 20, .35);
+}
+
+
+/* ==========================================================================
+   4. COMPONENT SEMANTIC ALIASES
+   These are NOT new raw values — they're named pointers that map a
+   component role to the tokens above. A component file should consume
+   these aliases, never reach for a raw token directly where a semantic
+   alias exists. This keeps re-theming any component to one-line changes.
+   ========================================================================== */
+:root {
+
+  /* ── Navigation / Sidebar ───────────────────────────────────────────── */
+  --nav-bg:               var(--sidebar);
+  --nav-border:           var(--border);
+  --nav-item-text:        var(--text-2);
+  --nav-item-active-bg:   var(--surface-2);
+  --nav-item-active-text: var(--text);
+  --nav-item-active-border: var(--border);
+  --nav-item-radius:      var(--radius-sm);
+  --nav-brand-font:       var(--font-display);
+  --nav-brand-size:       var(--text-display-sm);
+
+
+  /* ── Buttons ────────────────────────────────────────────────────────── */
+  /* Primary — filled, accent */
+  --btn-primary-bg:       var(--accent);
+  --btn-primary-bg-hover: var(--accent-hover);
+  --btn-primary-text:     var(--accent-ink);
+  --btn-primary-radius:   var(--radius-sm);
+  --btn-primary-size:     var(--text-body);
+  --btn-primary-weight:   var(--weight-bold);
+  --btn-primary-padding:  var(--space-3) var(--space-5);
+
+  /* Ghost — outlined, transparent */
+  --btn-ghost-border:     var(--border);
+  --btn-ghost-text:       var(--text-2);
+  --btn-ghost-bg-hover:   var(--surface-2);
+  --btn-ghost-text-hover: var(--text);
+  --btn-ghost-radius:     var(--radius-sm);
+  --btn-ghost-size:       var(--text-body);
+  --btn-ghost-weight:     var(--weight-semibold);
+
+  /* Danger — destructive actions */
+  --btn-danger-bg:        var(--danger);
+  --btn-danger-text:      #FFFFFF;
+  --btn-danger-radius:    var(--radius-sm);
+
+  /* Icon button (top-bar bell, theme toggle, etc.) */
+  --btn-icon-bg:          var(--surface);
+  --btn-icon-border:      var(--border);
+  --btn-icon-radius:      var(--radius-pill);
+  --btn-icon-size:        36px; /* fixed square/circle target size */
+
+
+  /* ── Cards / Panels ─────────────────────────────────────────────────── */
+  --card-bg:              var(--surface);
+  --card-border:          var(--border);
+  --card-radius:          var(--radius-card);
+  --card-shadow:          var(--shadow-flat);
+  --card-padding:         var(--space-8);  /* default card padding (32px) */
+  --card-padding-sm:      var(--space-6);  /* compact card variant (24px) */
+
+  /* Snap/teaser cards (smaller, side-column) */
+  --snap-card-bg:         var(--surface);
+  --snap-card-border:     var(--border);
+  --snap-card-radius:     var(--radius-card);
+  --snap-card-padding:    var(--space-6) var(--space-6); /* 24px */
+
+
+  /* ── Chips / Status Tags ────────────────────────────────────────────── */
+  --chip-radius:          var(--radius-pill);
+  --chip-font-size:       var(--text-caption);
+  --chip-weight:          var(--weight-bold);
+  --chip-padding:         5px 11px;
+
+  /* Chip color roles — set the color vars per chip variant in component */
+  /* e.g. good chip: bg = var(--good-soft), color = var(--good)         */
+
+
+  /* ── Modals ─────────────────────────────────────────────────────────── */
+  --modal-bg:             var(--surface-modal);
+  --modal-radius:         var(--radius-card);
+  --modal-shadow:         var(--shadow-modal);
+  --modal-backdrop:       var(--backdrop);
+  --modal-header-border:  var(--border-strong); /* stronger than hairline */
+  --modal-padding:        var(--space-8);
+  --modal-max-width:      560px;
+
+
+  /* ── Inputs / Textareas / Selects ───────────────────────────────────── */
+  --input-bg:             var(--surface-2);
+  --input-border:         var(--border);
+  --input-border-focus:   var(--accent);
+  --input-radius:         var(--radius-sm);
+  --input-text:           var(--text);
+  --input-placeholder:    var(--text-3);
+  --input-font-size:      var(--text-body);
+  --input-padding:        var(--space-3) var(--space-4); /* 12px 16px */
+
+
+  /* ── Tables ─────────────────────────────────────────────────────────── */
+  --table-row-border:     var(--border);
+  --table-row-hover:      var(--surface-2);
+  --table-header-text:    var(--text-3);
+  --table-header-size:    var(--text-caption);
+  --table-header-weight:  var(--weight-semibold);
+  --table-cell-size:      var(--text-body);
+  --table-cell-text:      var(--text-2);
+  --table-cell-primary:   var(--text);
+
+
+  /* ── Charts (Recharts / Victory / custom SVG) ───────────────────────── */
+  --chart-tooltip-bg:     var(--surface-2);
+  --chart-tooltip-border: var(--border-strong);
+  --chart-tooltip-text:   var(--text);
+  --chart-tooltip-label:  var(--text-3);
+  --chart-tooltip-radius: var(--radius-sm);
+  /* Series colors: use --chart-1 through --chart-6 in order.
+     Gridlines: --chart-grid. Axis text: --chart-axis-label.              */
+
+
+  /* ── Progress Bars ──────────────────────────────────────────────────── */
+  --progress-track:       var(--surface-2);  /* unfilled background */
+  --progress-fill-good:   var(--good);
+  --progress-fill-warn:   var(--warn);
+  --progress-fill-danger: var(--danger);
+  --progress-fill-accent: var(--accent);
+  --progress-height:      6px;
+  --progress-radius:      var(--radius-pill);
+
+
+  /* ── Rings (SVG score ring, system ring) ────────────────────────────── */
+  --ring-track:           var(--border);
+  --ring-fill:            var(--accent);     /* default; override per state */
+  --ring-fill-good:       var(--good);
+  --ring-fill-warn:       var(--warn);
+  --ring-fill-danger:     var(--danger);
+  --ring-stroke-width:    8px;
+  --ring-animation:       var(--duration-slow); /* fill animation */
+
+
+  /* ── Signals / Alert blocks ─────────────────────────────────────────── */
+  /* Signals are the cross-system alerts (not toasts). They use the
+     semantic status variables for bg and text.                           */
+  --signal-radius:        var(--radius-card);
+  --signal-padding:       var(--space-5);
+  --signal-text-size:     var(--text-body-lg);
+  --signal-text-leading:  var(--leading-relaxed);
+
+
+  /* ── Empty states ───────────────────────────────────────────────────── */
+  --empty-text:           var(--text-3);
+  --empty-text-size:      var(--text-body);
+  --empty-icon-opacity:   0.35;
+
+
+  /* ── Toasts / Notifications ─────────────────────────────────────────── */
+  --toast-bg:             var(--surface-2);
+  --toast-border:         var(--border-strong);
+  --toast-radius:         var(--radius-card);
+  --toast-shadow:         var(--shadow-raised);
+
+
+  /* ── Settings rows ──────────────────────────────────────────────────── */
+  --settings-row-border:  var(--border);
+  --settings-label-text:  var(--text);
+  --settings-label-size:  var(--text-body);
+  --settings-sub-text:    var(--text-3);
+  --settings-sub-size:    var(--text-body-sm);
+
+
+  /* ── Loading / Skeleton ─────────────────────────────────────────────── */
+  --skeleton-base:        var(--surface-2);
+  --skeleton-shine:       var(--border);
+  --skeleton-radius:      var(--radius-sm);
+}
+
+
+/* ==========================================================================
+   BASE LAYER — global resets and defaults that enforce the token system
+   ========================================================================== */
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: var(--leading-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    transition: background var(--duration-base) var(--ease),
+                color     var(--duration-base) var(--ease);
+  }
+
+  /* Focus visible — mandatory on every interactive element */
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: var(--radius-sm);
+  }
+
+  /* Headings — font assignment only; size via utility class */
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-tight);
+    color: var(--text);
+  }
+
+  h4, h5, h6 {
+    font-family: var(--font-body);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-normal);
+    color: var(--text);
+  }
+
+  /* Motion safety */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

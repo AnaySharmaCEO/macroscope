@@ -1,21 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../core/hooks';
 import { OTPInput } from 'input-otp';
+import { ActionButton } from '../ui/components/ActionButton';
 
-// Inline Slot component styled to fit the dark mode aesthetics
+// Inline Slot component styled to fit the tokens system
 const Slot = ({ char, isActive, hasFakeCaret }: any) => {
   return (
     <div
-      className={`relative w-10 h-14 text-2xl flex items-center justify-center border rounded-md transition-all ${
-        isActive
-          ? 'border-white ring-2 ring-white/20 z-10'
-          : 'border-zinc-800 bg-zinc-900/50'
-      }`}
+      className="relative w-10 h-14 text-2xl flex items-center justify-center border font-mono transition-all"
+      style={{
+        borderRadius: 'var(--radius-sm)',
+        backgroundColor: 'var(--surface-2)',
+        borderColor: isActive ? 'var(--accent)' : 'var(--border)',
+        boxShadow: isActive ? 'var(--focus-ring)' : 'none',
+        color: 'var(--text-1)',
+      }}
     >
       {char !== null && <span>{char}</span>}
       {hasFakeCaret && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center animate-caret-blink">
-          <div className="w-[1px] h-8 bg-white" />
+          <div className="w-[1px] h-8 bg-[var(--accent)]" />
         </div>
       )}
     </div>
@@ -50,7 +54,7 @@ export function AuthFlow() {
       await sendOtp(inputEmail);
       setCooldown(30); // 30s cooldown on first send
     } catch (err) {
-      // Error is handled via useAuth globally (or we render it below)
+      // Error is handled via useAuth globally
     }
   };
 
@@ -81,49 +85,81 @@ export function AuthFlow() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-sm space-y-8 animate-in fade-in zoom-in-95 duration-500">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight">MacroScope</h1>
-          <p className="text-zinc-400 mt-2">Performance Operating System</p>
+    <div 
+      className="min-h-screen flex flex-col items-center justify-center p-6"
+      style={{
+        backgroundColor: 'var(--background)',
+        color: 'var(--text-1)',
+      }}
+    >
+      <div 
+        className="w-full max-w-sm p-8 border space-y-8"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          borderColor: 'var(--card-border)',
+          borderRadius: 'var(--card-radius)',
+        }}
+      >
+        <div className="text-center space-y-1.5">
+          <h1 className="font-serif text-3xl font-semibold text-[var(--text-1)] tracking-tight">MacroScope</h1>
+          <p className="text-sm text-[var(--text-2)]">Personal performance OS</p>
         </div>
 
         {authError && (
-          <div className="p-3 bg-red-900/50 text-red-200 border border-red-800 rounded text-sm text-center">
+          <div 
+            className="p-3 border text-xs text-center leading-relaxed"
+            style={{
+              backgroundColor: 'var(--danger-soft)',
+              borderColor: 'var(--danger-border)',
+              color: 'var(--danger)',
+              borderRadius: 'var(--radius-sm)',
+            }}
+          >
             {authError}
           </div>
         )}
 
         {!isOtpStage ? (
-          <form onSubmit={handleEmailSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300">System ID (Email)</label>
+          <form onSubmit={handleEmailSubmit} className="space-y-5">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-[var(--text-2)]">Email address</label>
               <input 
                 type="email" 
                 required
                 value={inputEmail}
                 onChange={(e) => setInputEmail(e.target.value)}
-                className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded text-white focus:outline-none focus:border-white transition-colors"
-                placeholder="Enter your email"
+                style={{
+                  backgroundColor: 'var(--input-bg)',
+                  borderColor: 'var(--input-border)',
+                  borderRadius: 'var(--input-radius)',
+                  color: 'var(--input-text)',
+                  fontSize: 'var(--input-font-size)',
+                  padding: 'var(--input-padding)',
+                }}
+                className="w-full border transition-colors duration-150 focus:outline-none focus:border-[var(--input-border-focus)] focus:ring-2 focus:ring-[var(--accent)]/30"
+                placeholder="you@domain.com"
                 autoFocus
               />
             </div>
 
-            <button 
-              type="submit" 
-              disabled={loading || !inputEmail}
-              className="w-full py-2 px-4 bg-white text-black font-medium rounded hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Initializing...' : 'Continue'}
-            </button>
+            <div className="pt-2">
+              <ActionButton 
+                type="submit" 
+                variant="primary"
+                disabled={loading || !inputEmail}
+                fullWidth
+              >
+                {loading ? 'Initializing...' : 'Continue with email'}
+              </ActionButton>
+            </div>
           </form>
         ) : (
           <form onSubmit={handleOtpSubmit} className="space-y-6 flex flex-col items-center">
-            <div className="text-center space-y-2">
-              <p className="text-sm font-medium text-zinc-300">
-                Enter the 6-digit access code sent to<br/>
-                <span className="text-white font-semibold">{email}</span>
+            <div className="text-center space-y-1">
+              <p className="text-xs text-[var(--text-2)]">
+                Enter the 6-digit access code sent to
               </p>
+              <p className="text-sm font-semibold text-[var(--text-1)]">{email}</p>
             </div>
 
             <OTPInput
@@ -140,31 +176,34 @@ export function AuthFlow() {
               )}
             />
 
-            <button 
-              type="submit" 
-              disabled={loading || otp.length !== 6}
-              className="w-full py-2 px-4 bg-white text-black font-medium rounded hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-white transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Verifying...' : 'Verify Access'}
-            </button>
+            <div className="w-full pt-2">
+              <ActionButton 
+                type="submit" 
+                variant="primary"
+                disabled={loading || otp.length !== 6}
+                fullWidth
+              >
+                {loading ? 'Verifying...' : 'Verify code'}
+              </ActionButton>
+            </div>
 
-            <div className="flex flex-col items-center space-y-3 pt-2 text-sm">
+            <div className="flex flex-col items-center space-y-2 pt-1 text-xs">
               <button 
                 type="button"
                 onClick={handleResend}
                 disabled={cooldown > 0 || loading}
-                className="text-zinc-400 hover:text-white disabled:opacity-50 transition-colors focus:outline-none"
+                className="text-[var(--text-2)] hover:text-[var(--text-1)] disabled:opacity-50 transition-colors cursor-pointer"
               >
-                {cooldown > 0 ? `Resend code in ${cooldown}s` : 'Resend Code'}
+                {cooldown > 0 ? `Resend code in ${cooldown}s` : 'Resend code'}
               </button>
               
               <button 
                 type="button"
                 onClick={resetAuthFlow}
                 disabled={loading}
-                className="text-zinc-500 hover:text-zinc-300 transition-colors focus:outline-none"
+                className="text-[var(--text-3)] hover:text-[var(--text-2)] transition-colors cursor-pointer"
               >
-                Change Email
+                Change email
               </button>
             </div>
           </form>

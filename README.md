@@ -6,7 +6,7 @@ MacroScope is a multi-platform Performance OS designed to track and optimize hum
 
 
 - **Unified Performance Tracking**: Monitor Sleep, Nutrition, and Activity in one centralized "Control Center".
-- **Signal System**: Replaces traditional "insights" with automated, system-driven alerts that identify how one system affects another (e.g., *"Late meals are reducing sleep consistency"*).
+- **Signal System**: Replaces traditional "insights" with automated, system-driven alerts that identify how one system affects another (e.g., _"Late meals are reducing sleep consistency"_).
 - **Multi-Platform Support**: Cross-platform compatibility using a shared Core logic layer:
   - **Web**: Responsive React application.
   - **Desktop**: Electron-powered desktop experience.
@@ -43,18 +43,21 @@ For detailed architecture information, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 ### Installation
 
 1.  **Clone the repository**:
+
     ```bash
     git clone https://github.com/AnaySharmaCEO/macroscope.git
     cd macroscope
     ```
 
 2.  **Install dependencies**:
+
     ```bash
     npm install
     ```
 
 3.  **Environment Setup**:
     Create a `.env` file in the root directory and add your Supabase credentials:
+
     ```env
     VITE_SUPABASE_URL=your_supabase_url
     VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -68,6 +71,7 @@ For detailed architecture information, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 ## 🔐 Security & Privacy
 
 This project follows strict security practices:
+
 - **Protected Source**: Proprietary mobile and desktop logic is excluded from public tracking.
 - **Environment Isolation**: All API keys and secrets are managed via `.env` files and are never committed to the repository.
 - **Secure Auth**: Industry-standard authentication via Supabase.

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>MacroScope — Desktop System v2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --radius-card:12px; --radius-pill:999px; --radius-sm:8px;
+    --font-display:'Fraunces',serif; --font-body:'Inter',sans-serif;
+    --ease:cubic-bezier(.4,0,.2,1);
+  }
+  html[data-theme="dark"]{
+    --bg:#0B0C0D; --sidebar:#0E0F11; --surface:#151719; --surface-2:#1B1E21;
+    --border:#24272A; --text:#F3F1EC; --text-2:#8E939C; --text-3:#5B6068;
+    --accent:#C9A66B; --accent-ink:#1A1509;
+    --live:#FF6F59; --live-soft:rgba(255,111,89,.12);
+    --good:#5FBE8D; --good-soft:rgba(95,190,141,.12);
+    --warn:#F2A93B; --warn-soft:rgba(242,169,59,.12);
+    --shadow:0 1px 0 rgba(255,255,255,.02) inset;
+    --shadow-raised:0 4px 16px rgba(0,0,0,.28);
+    --focus-ring:0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+  }
+  html[data-theme="light"]{
+    --bg:#F4F2ED; --sidebar:#FFFFFF; --surface:#FFFFFF; --surface-2:#FAF8F3;
+    --border:#E5E0D5; --text:#241F19; --text-2:#756C5E; --text-3:#A69C8B;
+    --accent:#8A5F2C; --accent-ink:#FFFFFF;
+    --live:#B23A5D; --live-soft:rgba(178,58,93,.09);
+    --good:#2F7A54; --good-soft:rgba(47,122,84,.09);
+    --warn:#9C6516; --warn-soft:rgba(156,101,22,.10);
+    --shadow:0 1px 2px rgba(40,30,15,.04);
+    --shadow-raised:0 8px 24px rgba(40,30,15,.10);
+    --focus-ring:0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--font-body); transition:background .2s;}
+  :focus-visible{outline:none; box-shadow:var(--focus-ring); border-radius:4px;}
+  .app{display:grid; grid-template-columns:236px 1fr; min-height:100vh;}
+
+  /* SIDEBAR */
+  .sidebar{background:var(--sidebar); border-right:1px solid var(--border); padding:26px 18px;}
+  .brand{padding:0 6px 26px; border-bottom:1px solid var(--border); margin-bottom:20px;}
+  .brand .name{font-family:var(--font-display); font-size:19px; font-weight:500;}
+  .brand .sub{font-size:11px; color:var(--text-3); margin-top:2px; font-weight:500;}
+  .nav{display:flex; flex-direction:column; gap:2px;}
+  .nav a{display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:var(--radius-sm);
+    color:var(--text-2); text-decoration:none; font-size:13.5px; font-weight:500; transition:background .12s, color .12s;}
+  .nav a svg{width:17px; height:17px; opacity:.85; flex-shrink:0;}
+  .nav a.active{background:var(--surface-2); color:var(--text); border:1px solid var(--border);}
+  .nav a:hover:not(.active){background:var(--surface-2); color:var(--text);}
+
+  /* TOPBAR */
+  .topbar{display:flex; justify-content:flex-end; align-items:center; gap:10px; padding:20px 32px 0;}
+  .icon-btn{position:relative; display:flex; align-items:center; justify-content:center; width:36px; height:36px;
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-pill); cursor:pointer; color:var(--text-2);}
+  .icon-btn svg{width:16px; height:16px;}
+  .icon-btn .dot{position:absolute; top:7px; right:8px; width:6px; height:6px; border-radius:50%; background:var(--live);}
+  .theme-toggle{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-pill);
+    padding:8px 16px; font-size:12.5px; font-weight:600; color:var(--text-2); cursor:pointer; font-family:var(--font-body);}
+
+  /* MAIN */
+  main{padding:8px 32px 40px;}
+  .pagehead{margin:14px 0 24px;}
+  .pagehead h1{font-family:var(--font-display); font-size:26px; font-weight:500;}
+  .pagehead p{font-size:13px; color:var(--text-2); margin-top:3px;}
+
+  .grid{display:grid; grid-template-columns:1.55fr 1fr; gap:20px; align-items:start;}
+
+  /* HERO CARD */
+  .hero{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:30px 32px; box-shadow:var(--shadow);}
+  .hero-top{display:flex; align-items:center; gap:22px; margin-bottom:22px;}
+  .ring-wrap{position:relative; width:104px; height:104px; flex-shrink:0;}
+  .ring-wrap svg{width:104px; height:104px; transform:rotate(-90deg);}
+  .ring-bg{fill:none; stroke:var(--border); stroke-width:8;}
+  .ring-fg{fill:none; stroke:var(--accent); stroke-width:8; stroke-linecap:round;
+    transition:stroke-dashoffset .5s var(--ease);}
+  .ring-num{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-size:30px; font-weight:500;}
+  .hero-top .status-text .eyebrow{font-size:12px; color:var(--text-3); font-weight:600; margin-bottom:4px;}
+  .hero-top .status-text h2{font-family:var(--font-display); font-size:19px; font-weight:500; line-height:1.35; max-width:380px;}
+
+  .focus-block{border-top:1px solid var(--border); padding-top:22px;}
+  .focus-tag{display:inline-flex; align-items:center; gap:6px; background:var(--live-soft); color:var(--live);
+    font-size:11.5px; font-weight:700; padding:5px 11px; border-radius:var(--radius-pill); margin-bottom:12px;}
+  .focus-block h3{font-family:var(--font-display); font-size:19px; font-weight:500; margin-bottom:8px;}
+  .focus-block p{font-size:14px; color:var(--text-2); line-height:1.6; margin-bottom:18px; max-width:480px;}
+  .btn-primary{background:var(--accent); color:var(--accent-ink); border:none; padding:12px 20px;
+    border-radius:var(--radius-sm); font-size:13.5px; font-weight:700; font-family:var(--font-body); cursor:pointer;
+    transition:filter .12s;}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-ghost{background:transparent; color:var(--text-2); border:1px solid var(--border); padding:12px 18px;
+    border-radius:var(--radius-sm); font-size:13.5px; font-weight:600; font-family:var(--font-body); cursor:pointer; margin-left:8px;
+    transition:background .12s, color .12s;}
+  .btn-ghost:hover{background:var(--surface-2); color:var(--text);}
+
+  /* RIGHT COLUMN */
+  .side-col{display:flex; flex-direction:column; gap:16px;}
+  .streak-card{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:22px 24px;
+    display:flex; align-items:center; gap:16px; box-shadow:var(--shadow);}
+  .streak-card .flame{font-size:26px;}
+  .streak-card .num{font-family:var(--font-display); font-size:24px; font-weight:500;}
+  .streak-card .lbl{font-size:12px; color:var(--text-2); line-height:1.5;}
+
+  .snap-card{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:8px; box-shadow:var(--shadow);}
+  .snap-row{display:flex; justify-content:space-between; align-items:center; padding:13px 16px; border-radius:10px;
+    transition:background .12s;}
+  .snap-row:hover{background:var(--surface-2);}
+  .snap-row + .snap-row{border-top:1px solid var(--border);}
+  .snap-row .l{font-size:13.5px; font-weight:600;}
+  .snap-row .l small{display:block; font-weight:400; color:var(--text-2); font-size:11.5px; margin-top:2px;}
+  .chip{font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:var(--radius-pill);}
+  .chip.good{color:var(--good); background:var(--good-soft);}
+  .chip.warn{color:var(--warn); background:var(--warn-soft);}
+  .chip.live{color:var(--live); background:var(--live-soft);}
+
+  .teaser-card{background:linear-gradient(160deg, var(--surface), var(--surface-2)); border:1px solid var(--border);
+    border-radius:16px; padding:22px 24px; transition:box-shadow .15s, transform .15s;}
+  .teaser-card:hover{box-shadow:var(--shadow-raised); transform:translateY(-1px);}
+  .teaser-card .eyebrow{font-size:12px; color:var(--accent); font-weight:700; margin-bottom:8px;}
+  .teaser-card p{font-size:13.5px; color:var(--text-2); line-height:1.55; margin-bottom:14px;}
+  .teaser-card a{font-size:13px; font-weight:700; color:var(--text); text-decoration:none; border-bottom:1.5px solid var(--live); padding-bottom:2px;}
+
+  .note{max-width:1100px; margin:34px auto 0; padding:16px 20px; border:1px dashed var(--border); border-radius:12px;
+    font-size:12.5px; color:var(--text-3); line-height:1.7;}
+  .note b{color:var(--text-2);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="name">MacroScope</div>
+      <div class="sub">Performance OS</div>
+    </div>
+    <nav class="nav" aria-label="Main">
+      <a href="#" class="active" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>Home</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c-1.5 2-2.5 4-2.5 6.5a2.5 2.5 0 0 0 5 0c0-2.5-1-4.5-2.5-6.5Z"/><path d="M12 12v9"/></svg>Sleep</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3v7a2 2 0 0 0 2 2v9M6 3v6M8 3v6"/><path d="M17 3c-1.5 0-3 1.5-3 4v4h3v9"/></svg>Nutrition</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h4l2 7 4-14 2 7h6"/></svg>Activity</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.3 1 2.5h6c0-1.2.4-1.9 1-2.5A6 6 0 0 0 12 3Z"/></svg>Insights</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9c.4.7 1 1.1 1.5 1.1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Settings</a>
+    </nav>
+  </aside>
+
+  <div>
+    <div class="topbar">
+      <button class="theme-toggle" onclick="toggleTheme()">Switch to light</button>
+      <button class="icon-btn" aria-label="1 unread alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="dot" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <main>
+      <div class="pagehead">
+        <h1>Today</h1>
+        <p>Wednesday, September 9</p>
+      </div>
+
+      <div class="grid">
+        <!-- HERO -->
+        <div class="hero">
+          <div class="hero-top">
+            <div class="ring-wrap">
+              <svg viewBox="0 0 104 104" role="img" aria-label="Balance score 61 out of 100">
+                <circle class="ring-bg" cx="52" cy="52" r="46"/>
+                <circle class="ring-fg" cx="52" cy="52" r="46" stroke-dasharray="289" stroke-dashoffset="113"/>
+              </svg>
+              <div class="ring-num" aria-hidden="true">61</div>
+            </div>
+            <div class="status-text">
+              <div class="eyebrow">Today's balance</div>
+              <h2>Getting there — nutrition is the thing holding today back.</h2>
+            </div>
+          </div>
+          <div class="focus-block">
+            <span class="focus-tag">● Needs attention</span>
+            <h3>Nutrition needs the most attention</h3>
+            <p>Add 30–40g protein today — it's the fastest way to unlock better sleep and recovery too, not just a nutrition number going up.</p>
+            <button class="btn-primary">Log a meal</button>
+            <button class="btn-ghost">Remind me later</button>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="side-col">
+          <div class="streak-card">
+            <div class="flame" aria-hidden="true">🔥</div>
+            <div>
+              <div class="num">3-day streak</div>
+              <div class="lbl">Keep at least one system on track today to hold it.</div>
+            </div>
+          </div>
+
+          <div class="snap-card">
+            <div class="snap-row"><div class="l">Sleep<small>8.0 hours last night</small></div><div class="chip good">Good</div></div>
+            <div class="snap-row"><div class="l">Nutrition<small>65 kcal logged so far</small></div><div class="chip warn">Low</div></div>
+            <div class="snap-row"><div class="l">Activity<small>10,000 steps</small></div><div class="chip good">Strong</div></div>
+          </div>
+
+          <a class="teaser-card" href="#" style="display:block; text-decoration:none;">
+            <div class="eyebrow">This week's pattern</div>
+            <p>Your nutrition gap is quietly capping your sleep quality too — the two are more connected than they look.</p>
+            <span style="font-size:13px; font-weight:700; color:var(--text); border-bottom:1.5px solid var(--live); padding-bottom:2px;">See how they connect</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="note">
+        <b>What changed from v1:</b> removed the duplicate "3-day streak" pill in the topbar (it repeated the streak card below) and replaced it with a single alert icon + dot, since a middle-dot-separated meta pill ("Alerts · 1") is a common generated-UI tell. Focus tag copy changed from "Today's focus" (redundant with the section heading right under it) to "Needs attention," which now carries distinct information. Added visible focus rings, hover states scoped only to genuinely interactive elements, `prefers-reduced-motion` support, and ARIA labeling for the ring score and icon button. Light mode accent/status colors were darkened slightly for AA contrast against the white surface. Structural rule is unchanged: pill shapes = alive/actionable, hairline-bordered cards = structural/data.
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  function toggleTheme(){
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    document.querySelector('.theme-toggle').textContent = isDark ? 'Switch to dark' : 'Switch to light';
+  }
+</script>
+</body>
+</html>

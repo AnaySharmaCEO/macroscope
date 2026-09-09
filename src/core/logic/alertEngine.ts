@@ -229,11 +229,20 @@ function loadAlertHistory(): Alert[] {
     
     const raw = storage.getItem(ALERTS_STORAGE_KEY);
     if (!raw) return [];
-    return JSON.parse(raw).map((a: any) => ({
-      ...a,
-      createdAt: new Date(a.createdAt),
-      acknowledgedAt: a.acknowledgedAt ? new Date(a.acknowledgedAt) : undefined
-    }));
+    const parsed = JSON.parse(raw);
+    const seen = new Set<string>();
+    const unique: Alert[] = [];
+    for (const a of parsed) {
+      if (a && a.id && !seen.has(a.id)) {
+        seen.add(a.id);
+        unique.push({
+          ...a,
+          createdAt: new Date(a.createdAt),
+          acknowledgedAt: a.acknowledgedAt ? new Date(a.acknowledgedAt) : undefined
+        });
+      }
+    }
+    return unique;
   } catch {
     return [];
   }
@@ -243,7 +252,13 @@ function saveAlertHistory(alerts: Alert[]) {
   try {
     const storage = typeof window !== 'undefined' ? window.localStorage : undefined;
     if (storage) {
-      storage.setItem(ALERTS_STORAGE_KEY, JSON.stringify(alerts));
+      const seen = new Set<string>();
+      const unique = alerts.filter(a => {
+        if (!a || !a.id || seen.has(a.id)) return false;
+        seen.add(a.id);
+        return true;
+      });
+      storage.setItem(ALERTS_STORAGE_KEY, JSON.stringify(unique));
     }
   } catch (e) {
     console.error('Failed to save alert history', e);
@@ -328,15 +343,22 @@ export function generateAlerts(
     }
   }
 
+  // Ensure unique by id
+  const alertMap = new Map<string, Alert>();
+  for (const a of newAlerts) {
+    alertMap.set(a.id, a);
+  }
+  const uniqueAlerts = Array.from(alertMap.values());
+
   // Save full history, but keep it pruned to last 50
-  const prunedHistory = [...newAlerts]
+  const prunedHistory = [...uniqueAlerts]
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     .slice(0, 50);
 
   saveAlertHistory(prunedHistory);
   
   // Return only ACTIVE/NEW/ACKNOWLEDGED to the UI, capped to avoid spam
-  const active = newAlerts.filter(a => a.state !== 'RESOLVED');
+  const active = uniqueAlerts.filter(a => a.state !== 'RESOLVED');
   const severityOrder = { high: 3, medium: 2, low: 1 };
   return [...active]
     .sort((a, b) => {

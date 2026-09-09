@@ -60,136 +60,147 @@ export function ProfilePage() {
   if (overviewLoading || profileLoading) {
     return (
       <div className="p-8">
-        <div className="text-sm text-[#737373]">Loading...</div>
+        <div className="text-sm text-[var(--text-3)]">Loading profile...</div>
       </div>
     );
   }
 
-  // Status color mapping
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'stable': return '#10b981';
-      case 'warning': return '#f59e0b';
-      case 'low': return '#ef4444';
-      default: return '#737373';
+  // Status badge mapping
+  const getStatusBadge = (s: string) => {
+    switch (s?.toLowerCase()) {
+      case 'stable':
+      case 'optimal':
+        return { bg: 'var(--good-soft)', text: 'var(--good)', border: 'var(--good-border)' };
+      case 'warning':
+      case 'imbalanced':
+        return { bg: 'var(--warn-soft)', text: 'var(--warn)', border: 'var(--warn-border)' };
+      case 'low':
+      case 'critical':
+        return { bg: 'var(--danger-soft)', text: 'var(--danger)', border: 'var(--danger-border)' };
+      default:
+        return { bg: 'var(--surface-2)', text: 'var(--text-2)', border: 'var(--border)' };
     }
   };
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
+    <div className="p-8 max-w-4xl mx-auto space-y-8">
       {/* Header */}
-      <div className="mb-12">
-        <h1 className="text-3xl tracking-tight mb-2">Profile</h1>
-        <div className="text-sm text-[#737373]">Manage your settings and preferences</div>
+      <div>
+        <h1 className="font-serif text-3xl text-[var(--text-1)] tracking-tight mb-2">Profile</h1>
+        <p className="text-sm text-[var(--text-2)]">Manage your physical metrics and baseline habits</p>
       </div>
 
       {/* User Info */}
-      <div className="mb-8">
-        <FormContainer title="User Information">
-          <InputField
-            label="Height"
-            value={height}
-            onChange={setHeight}
-            type="number"
-            unit={units === 'imperial' ? 'in' : 'cm'}
-          />
-          <InputField
-            label="Weight"
-            value={weight}
-            onChange={setWeight}
-            type="number"
-            unit={units === 'imperial' ? 'lb' : 'kg'}
-          />
-          <SelectOptionGroup
-            label="Goal"
-            value={goal}
-            onChange={(value) => setGoal(value as 'maintain' | 'improve' | 'lose' | 'gain')}
-            options={[
-              { value: 'maintain', label: 'Maintain' },
-              { value: 'improve', label: 'Improve' },
-              { value: 'lose', label: 'Lose Weight' },
-              { value: 'gain', label: 'Gain Weight' },
-            ]}
-          />
-        </FormContainer>
-      </div>
+      <FormContainer title="User information">
+        <InputField
+          label="Height"
+          value={height}
+          onChange={setHeight}
+          type="number"
+          unit={units === 'imperial' ? 'in' : 'cm'}
+        />
+        <InputField
+          label="Weight"
+          value={weight}
+          onChange={setWeight}
+          type="number"
+          unit={units === 'imperial' ? 'lb' : 'kg'}
+        />
+        <SelectOptionGroup
+          label="Goal"
+          value={goal}
+          onChange={(value) => setGoal(value as 'maintain' | 'improve' | 'lose' | 'gain')}
+          options={[
+            { value: 'maintain', label: 'Maintain' },
+            { value: 'improve', label: 'Improve' },
+            { value: 'lose', label: 'Lose weight' },
+            { value: 'gain', label: 'Gain weight' },
+          ]}
+        />
+      </FormContainer>
 
       {/* System Summary */}
-      <div className="mb-8 pb-8 border-b border-[#262626]">
-        <div className="text-xs tracking-wider uppercase text-[#737373] mb-4">SYSTEM SUMMARY</div>
+      <div 
+        className="p-6 border space-y-4"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          borderColor: 'var(--card-border)',
+          borderRadius: 'var(--card-radius)',
+        }}
+      >
+        <div className="text-sm font-semibold text-[var(--text-1)]">System summary</div>
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          {(['sleep', 'nutrition', 'activity'] as const).map((system) => {
+            const statusVal = system === 'sleep' ? overview.sleepStatus : system === 'nutrition' ? overview.nutritionStatus : overview.activityStatus;
+            const badge = getStatusBadge(statusVal);
+            return (
               <div 
-                className="w-2 h-2 rounded-full" 
-                style={{ backgroundColor: getStatusColor(overview.sleepStatus) }}
-              />
-              <span className="text-sm">Sleep</span>
-            </div>
-            <span className="text-sm text-[#737373] capitalize">{overview.sleepStatus}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-2 h-2 rounded-full" 
-                style={{ backgroundColor: getStatusColor(overview.nutritionStatus) }}
-              />
-              <span className="text-sm">Nutrition</span>
-            </div>
-            <span className="text-sm text-[#737373] capitalize">{overview.nutritionStatus}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-2 h-2 rounded-full" 
-                style={{ backgroundColor: getStatusColor(overview.activityStatus) }}
-              />
-              <span className="text-sm">Activity</span>
-            </div>
-            <span className="text-sm text-[#737373] capitalize">{overview.activityStatus}</span>
-          </div>
+                key={system} 
+                className="flex items-center justify-between p-3 border"
+                style={{
+                  backgroundColor: 'var(--surface-2)',
+                  borderColor: 'var(--border)',
+                  borderRadius: 'var(--radius-sm)',
+                }}
+              >
+                <span className="text-sm font-medium text-[var(--text-1)] capitalize">{system}</span>
+                <span 
+                  className="px-2.5 py-0.5 text-xs font-medium capitalize"
+                  style={{
+                    backgroundColor: badge.bg,
+                    color: badge.text,
+                    border: `1px solid ${badge.border}`,
+                    borderRadius: 'var(--radius-pill)',
+                  }}
+                >
+                  {statusVal}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
 
       {/* Settings */}
-      <div className="mb-8">
-        <FormContainer title="System Settings">
-          <SelectOptionGroup
-            label="Activity Level"
-            value={activityLevel}
-            onChange={(value) => setActivityLevel(value as 'low' | 'moderate' | 'high')}
-            options={[
-              { value: 'low', label: 'Low' },
-              { value: 'moderate', label: 'Moderate' },
-              { value: 'high', label: 'High' },
-            ]}
-          />
-          <SelectOptionGroup
-            label="Eating Pattern"
-            value={eatingPattern}
-            onChange={(value) => setEatingPattern(value as 'light' | 'balanced' | 'heavy')}
-            options={[
-              { value: 'light', label: 'Light' },
-              { value: 'balanced', label: 'Balanced' },
-              { value: 'heavy', label: 'Heavy' },
-            ]}
-          />
-          <InputField
-            label="Typical Sleep"
-            value={typicalSleepHours}
-            onChange={setTypicalSleepHours}
-            type="number"
-            unit="hours"
-          />
+      <FormContainer title="System settings">
+        <SelectOptionGroup
+          label="Activity level"
+          value={activityLevel}
+          onChange={(value) => setActivityLevel(value as 'low' | 'moderate' | 'high')}
+          options={[
+            { value: 'low', label: 'Low' },
+            { value: 'moderate', label: 'Moderate' },
+            { value: 'high', label: 'High' },
+          ]}
+        />
+        <SelectOptionGroup
+          label="Eating pattern"
+          value={eatingPattern}
+          onChange={(value) => setEatingPattern(value as 'light' | 'balanced' | 'heavy')}
+          options={[
+            { value: 'light', label: 'Light' },
+            { value: 'balanced', label: 'Balanced' },
+            { value: 'heavy', label: 'Heavy' },
+          ]}
+        />
+        <InputField
+          label="Typical sleep"
+          value={typicalSleepHours}
+          onChange={setTypicalSleepHours}
+          type="number"
+          unit="hours"
+        />
+        <div className="pt-2">
           <ActionButton
+            variant="primary"
             onClick={handleUpdateProfile}
             disabled={submitting}
             fullWidth
           >
-            {submitting ? 'Updating...' : 'Update Profile'}
+            {submitting ? 'Updating profile...' : 'Save changes'}
           </ActionButton>
-        </FormContainer>
-      </div>
+        </div>
+      </FormContainer>
     </div>
   );
 }

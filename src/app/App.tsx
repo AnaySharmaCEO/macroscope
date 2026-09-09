@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 const applyThemeClass = () => {
   const theme = localStorage.getItem('macroscope_theme') || 'dark';
   const root = document.documentElement;
+  root.setAttribute('data-theme', theme);
   if (theme === 'dark') root.classList.add('dark');
   else root.classList.remove('dark');
 };

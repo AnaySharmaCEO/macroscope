@@ -17,33 +17,55 @@ interface SegmentedControlProps {
 
 export function SegmentedControl({ label, value, onChange, options }: SegmentedControlProps) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1.5">
       {label && (
-        <label className="text-xs tracking-wider uppercase text-[#737373]">
+        <label 
+          className="font-medium"
+          style={{ 
+            color: 'var(--text-3)', 
+            fontSize: 'var(--text-caption)'
+          }}
+        >
           {label}
         </label>
       )}
       <div
-        className="
-          flex flex-wrap bg-[#0a0a0a] border border-[#262626] rounded p-1
-        "
+        style={{
+          backgroundColor: 'var(--surface-2)',
+          borderColor: 'var(--border)',
+          borderRadius: 'var(--radius-sm)',
+        }}
+        className="flex flex-wrap border p-1 gap-1 max-w-[500px]"
       >
-        {options.map((option) => (
-          <button
-            key={option.value}
-            onClick={() => onChange(option.value)}
-            className={`
-              flex-grow flex-shrink basis-0 min-w-[80px] px-4 py-2 text-sm rounded transition-all duration-150
-              ${value === option.value
-                ? 'bg-[#00D4FF] text-black'
-                : 'text-[#737373] hover:text-[#e5e5e5]'
+        {options.map((option) => {
+          const isActive = value === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onChange(option.value)}
+              style={
+                isActive
+                  ? {
+                      backgroundColor: 'var(--accent)',
+                      color: 'var(--accent-ink)',
+                      borderRadius: 'calc(var(--radius-sm) - 2px)',
+                      fontWeight: 'var(--weight-semibold)',
+                    }
+                  : {
+                      backgroundColor: 'transparent',
+                      color: 'var(--text-2)',
+                      borderRadius: 'calc(var(--radius-sm) - 2px)',
+                    }
               }
-            `}
-          >
-            {option.label}
-          </button>
-        ))}
+              className="flex-grow flex-shrink basis-0 min-w-[70px] h-8 px-3 text-xs transition-all duration-150 hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
+            >
+              {option.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
+

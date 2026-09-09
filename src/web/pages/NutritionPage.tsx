@@ -176,37 +176,42 @@ export function NutritionPage() {
     };
   };
 
-  // Status color mapping
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'stable': return '#10b981';
-      case 'imbalanced': return '#f59e0b';
-      case 'low': return '#ef4444';
-      default: return '#737373';
+  const getStatusTokens = (st: string) => {
+    switch (st) {
+      case 'stable': 
+        return { color: 'var(--good)', bg: 'var(--good-soft)', label: 'Stable' };
+      case 'imbalanced': 
+        return { color: 'var(--warn)', bg: 'var(--warn-soft)', label: 'Imbalanced' };
+      case 'low': 
+        return { color: 'var(--danger)', bg: 'var(--danger-soft)', label: 'Low' };
+      default: 
+        return { color: 'var(--text-3)', bg: 'var(--surface-2)', label: 'Stable' };
     }
   };
+
+  const statusTokens = getStatusTokens(status);
 
   // Add Meal Panel
   if (activePanel === 'addMeal') {
     return (
-      <PanelLayout title="Log Meal" onBack={() => setActivePanel(null)}>
-        <div className="p-8 max-w-2xl mx-auto">
+      <PanelLayout title="Log meal" onBack={() => setActivePanel(null)}>
+        <div className="p-6 md:p-8 max-w-2xl mx-auto">
           <div className="space-y-6">
             <SearchableInput
-              label="Meal Name"
+              label="Meal name"
               value={mealName}
               onChange={setMealName}
               onSearch={handleSearchFood}
               onSelect={handleSelectFood}
               searchResults={searchResults}
               getItemLabel={(item) => item.name}
-              getItemDescription={(item) => `${item.calories} cal • P: ${item.protein}g C: ${item.carbs}g F: ${item.fat}g • ${item.serving}`}
+              getItemDescription={(item) => `${item.calories} kcal • P: ${item.protein}g C: ${item.carbs}g F: ${item.fat}g • ${item.serving}`}
               placeholder="Search for food..."
               searching={searching}
             />
             
             <InputField
-              label="Meal Time (Optional)"
+              label="Meal time (optional)"
               value={mealTime}
               onChange={setMealTime}
               type="time"
@@ -219,10 +224,26 @@ export function NutritionPage() {
                 onChange={(v) => setQuantity(Number(v))}
                 type="number"
               />
-              <div>
-                <div className="text-xs tracking-wider uppercase text-[#737373] mb-2">Unit</div>
+              <div className="flex flex-col gap-1.5">
+                <label 
+                  style={{
+                    fontSize: 'var(--text-caption)',
+                    color: 'var(--text-3)',
+                    fontWeight: 'var(--weight-medium)',
+                  }}
+                >
+                  Unit
+                </label>
                 <select
-                  className="w-full p-3 rounded bg-[#0a0a0a] border border-[#262626] text-sm"
+                  style={{
+                    backgroundColor: 'var(--input-bg)',
+                    borderColor: 'var(--input-border)',
+                    borderRadius: 'var(--input-radius)',
+                    color: 'var(--input-text)',
+                    fontSize: 'var(--input-font-size)',
+                    padding: 'var(--input-padding)',
+                  }}
+                  className="border focus:outline-none focus:border-[var(--input-border-focus)] focus:ring-2 focus:ring-[var(--accent)]/30"
                   value={quantityUnit}
                   onChange={(e) => setQuantityUnit(e.target.value as any)}
                 >
@@ -235,7 +256,7 @@ export function NutritionPage() {
             </div>
 
             <SegmentedControl
-              label="Meal Type"
+              label="Meal type"
               value={mealType}
               onChange={(value) => setMealType(value as MealType)}
               options={[
@@ -246,73 +267,164 @@ export function NutritionPage() {
               ]}
             />
 
-            {/* Auto-filled nutrition preview */}
             {calories > 0 && (
-              <div className="pt-6 border-t border-[#262626]">
-                <div className="text-xs tracking-wider uppercase text-[#737373] mb-4">Nutrition Preview</div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-[#737373]">Calories</span>
-                    <span className="text-sm">{calories}</span>
+              <div 
+                style={{
+                  borderTop: '1px solid var(--border)',
+                  paddingTop: 'var(--space-4)',
+                }}
+              >
+                <div 
+                  style={{
+                    fontSize: 'var(--text-caption)',
+                    color: 'var(--text-3)',
+                    fontWeight: 'var(--weight-semibold)',
+                    marginBottom: 'var(--space-3)',
+                  }}
+                >
+                  Nutrition preview
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div 
+                    style={{
+                      backgroundColor: 'var(--surface-2)',
+                      borderColor: 'var(--border)',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: 'var(--space-3)',
+                    }}
+                    className="flex justify-between border"
+                  >
+                    <span style={{ color: 'var(--text-2)', fontSize: 'var(--text-body-sm)' }}>Calories</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 'var(--weight-medium)', fontSize: 'var(--text-body)' }}>{calories} kcal</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-[#737373]">Protein</span>
-                    <span className="text-sm">{protein}g</span>
+                  <div 
+                    style={{
+                      backgroundColor: 'var(--surface-2)',
+                      borderColor: 'var(--border)',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: 'var(--space-3)',
+                    }}
+                    className="flex justify-between border"
+                  >
+                    <span style={{ color: 'var(--text-2)', fontSize: 'var(--text-body-sm)' }}>Protein</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 'var(--weight-medium)', fontSize: 'var(--text-body)' }}>{protein}g</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-[#737373]">Carbs</span>
-                    <span className="text-sm">{carbs}g</span>
+                  <div 
+                    style={{
+                      backgroundColor: 'var(--surface-2)',
+                      borderColor: 'var(--border)',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: 'var(--space-3)',
+                    }}
+                    className="flex justify-between border"
+                  >
+                    <span style={{ color: 'var(--text-2)', fontSize: 'var(--text-body-sm)' }}>Carbs</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 'var(--weight-medium)', fontSize: 'var(--text-body)' }}>{carbs}g</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-[#737373]">Fat</span>
-                    <span className="text-sm">{fat}g</span>
+                  <div 
+                    style={{
+                      backgroundColor: 'var(--surface-2)',
+                      borderColor: 'var(--border)',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: 'var(--space-3)',
+                    }}
+                    className="flex justify-between border"
+                  >
+                    <span style={{ color: 'var(--text-2)', fontSize: 'var(--text-body-sm)' }}>Fat</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 'var(--weight-medium)', fontSize: 'var(--text-body)' }}>{fat}g</span>
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="pt-6">
-              <ActionButton
-                onClick={handleAddMeal}
-                disabled={submitting || !mealName || !calories}
-                fullWidth
-              >
-                {submitting ? 'Adding...' : 'Add Meal'}
-              </ActionButton>
-            </div>
+            <ActionButton
+              onClick={handleAddMeal}
+              disabled={submitting || !mealName || !calories}
+              fullWidth
+            >
+              {submitting ? 'Adding...' : 'Add meal'}
+            </ActionButton>
           </div>
         </div>
       </PanelLayout>
     );
   }
 
-  // Meal Type Panel (Breakfast, Lunch, Dinner, Snack)
-  if (activePanel && activePanel !== 'addMeal') {
-    const mealType = activePanel as MealType;
-    const mealTypeLabel = mealType.charAt(0).toUpperCase() + mealType.slice(1);
-    const stats = getMealTypeStats(mealType);
+  // Meal Type Extended View
+  if (activePanel) {
+    const stats = getMealTypeStats(activePanel as MealType);
+    const label = activePanel === 'snack' ? 'Snacks' : activePanel.charAt(0).toUpperCase() + activePanel.slice(1);
 
     return (
-      <PanelLayout title={mealTypeLabel} onBack={() => setActivePanel(null)}>
-        <div className="p-8 max-w-2xl mx-auto">
+      <PanelLayout title={label} onBack={() => setActivePanel(null)}>
+        <div className="p-6 md:p-8 max-w-2xl mx-auto space-y-6">
+          <div 
+            style={{
+              backgroundColor: 'var(--card-bg)',
+              borderColor: 'var(--card-border)',
+              borderRadius: 'var(--card-radius)',
+              padding: 'var(--card-padding-sm)',
+            }}
+            className="flex justify-between items-center border"
+          >
+            <div>
+              <div style={{ fontSize: 'var(--text-caption)', color: 'var(--text-3)' }}>Total meals</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', color: 'var(--text)', fontWeight: 'var(--weight-medium)' }}>
+                {stats.count}
+              </div>
+            </div>
+            <div className="text-right">
+              <div style={{ fontSize: 'var(--text-caption)', color: 'var(--text-3)' }}>Calories</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', color: 'var(--text)', fontWeight: 'var(--weight-medium)' }}>
+                {stats.calories} <span style={{ fontSize: '14px', color: 'var(--text-3)' }}>kcal</span>
+              </div>
+            </div>
+          </div>
+
           {stats.meals.length === 0 ? (
-            <div className="text-sm text-[#737373]">No meals logged for {mealTypeLabel.toLowerCase()}.</div>
+            <div 
+              style={{
+                color: 'var(--text-3)',
+                padding: 'var(--space-8)',
+                textAlign: 'center',
+                fontSize: 'var(--text-body)',
+              }}
+            >
+              No {label.toLowerCase()} logged today.
+            </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {stats.meals.map((meal) => (
-                <div key={meal.id} className="pb-6 border-b border-[#262626] last:border-0">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="text-lg">{meal.name}</div>
-                    <ActionButton
-                      onClick={() => handleRemoveMeal(meal.id)}
-                      variant="danger"
-                    >
-                      Remove
-                    </ActionButton>
+                <div 
+                  key={meal.id} 
+                  style={{
+                    backgroundColor: 'var(--surface-2)',
+                    borderColor: 'var(--border)',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: 'var(--space-4)',
+                  }}
+                  className="border flex justify-between items-start"
+                >
+                  <div>
+                    <div style={{ color: 'var(--text)', fontWeight: 'var(--weight-medium)', fontSize: 'var(--text-body)' }}>
+                      {meal.name}
+                    </div>
+                    <div style={{ color: 'var(--text-3)', fontSize: 'var(--text-caption)', marginTop: '2px' }}>
+                      {meal.time} • {meal.calories} kcal • P: {meal.protein}g C: {meal.carbs}g F: {meal.fat}g
+                    </div>
                   </div>
-                  <div className="text-sm text-[#737373]">
-                    {meal.time} • {meal.calories} cal • P: {meal.protein}g C: {meal.carbs}g F: {meal.fat}g
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveMeal(meal.id)}
+                    style={{
+                      color: 'var(--danger)',
+                      fontSize: 'var(--text-caption)',
+                      padding: '4px 8px',
+                    }}
+                    className="hover:underline focus-visible:outline-none"
+                  >
+                    Remove
+                  </button>
                 </div>
               ))}
             </div>
@@ -324,174 +436,408 @@ export function NutritionPage() {
 
   // Main Nutrition Page
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="mb-12">
-        <h1 className="text-3xl tracking-tight mb-2">Nutrition System</h1>
-        <div className="text-sm text-[#737373]">Monitor nutrition and meal timing</div>
-      </div>
-
-      {/* System State */}
-      <div className="mb-12">
-        <div className="flex items-center gap-3">
-          <div 
-            className="w-2 h-2 rounded-full" 
-            style={{ backgroundColor: getStatusColor(status) }}
-          />
-          <span className="text-sm uppercase tracking-wider text-[#737373]">
-            {status}
-          </span>
+    <div className="max-w-6xl mx-auto p-6 md:p-8">
+      {/* Page Header */}
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '26px',
+              fontWeight: 'var(--weight-medium)',
+              color: 'var(--text)',
+              lineHeight: '1.2',
+            }}
+            className="mb-1"
+          >
+            Nutrition system
+          </h1>
+          <p 
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '13px',
+              color: 'var(--text-2)',
+            }}
+          >
+            Monitor macronutrient pacing, caloric thresholds, and metabolic recovery
+          </p>
         </div>
-      </div>
 
-      {/* Primary Metric - CALORIES (DOMINANT) */}
-      <div className="mb-12">
-        <div className="text-xs tracking-wider uppercase mb-3 text-[#ffffff]">CALORIES</div>
-        <div className="text-6xl tracking-tight mb-1">
-          {todayCalories}<span className="text-3xl text-[#737373]"> / {calorieTarget}</span>
-        </div>
-        {/* Subtle progress bar */}
-        <div className="mt-4 h-1 bg-[#262626] rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-[#00D4FF] transition-all duration-300"
-            style={{ width: `${Math.min((todayCalories / calorieTarget) * 100, 100)}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Secondary Metrics - MACROS */}
-      <div className="mb-16">
-  <div className="text-xs tracking-wider uppercase mb-4 text-[#a4a4a4]">MACROS</div>
-  <div className="space-y-3">
-
-    {[
-      { label: "Protein", value: todayProtein, target: proteinTarget },
-      { label: "Carbs", value: todayCarbs, target: carbsTarget },
-      { label: "Fat", value: todayFat, target: fatTarget }
-    ].map((macro) => {
-      const progress = Math.min((macro.value / macro.target) * 100, 100);
-      const hue = (progress / 100) * 120; // 0 = red, 60 = yellow, 120 = green
-
-      return (
-        <div key={macro.label}>
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-sm text-[#ffffff]">{macro.label}</span>
-            <span className="text-lg">
-              {macro.value}g{" "}
-              <span className="text-sm text-[#737373]">
-                / {macro.target}g
-              </span>
-            </span>
-          </div>
-
-          <div className="h-0.5 bg-[#262626] rounded-full overflow-hidden">
-            <div
-              className="h-full transition-all duration-300"
-              style={{
-                width: `${progress}%`,
-                backgroundColor: `hsl(${hue}, 80%, 50%)`
-              }}
-            />
-          </div>
-        </div>
-      );
-    })}
-
-  </div>
-</div>
-
-      {/* Primary Signal */}
-      {signals.length > 0 && (
-        <div className="mb-16">
-          <div className="text-xl leading-relaxed">
-            {signals[0].message}
-          </div>
-        </div>
-      )}
-
-      {/* Daily Insights (DB) */}
-      {dailyInsights && (
-        <div className="mb-16">
-          <div className="text-xs tracking-wider uppercase text-[#737373] mb-4">DAILY INSIGHTS</div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { label: 'Calcium', value: dailyInsights.calcium_percent },
-              { label: 'Iron', value: dailyInsights.iron_percent },
-              { label: 'Magnesium', value: dailyInsights.magnesium_percent },
-            ].map((n) => (
-              <div key={n.label} className="p-4 border border-[#262626] rounded bg-[#0a0a0a]">
-                <div className="text-sm text-[#737373]">{n.label} (RDA)</div>
-                <div className="text-2xl mt-1">{Math.round(n.value)}%</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Suggested Foods (DB) */}
-      {suggestedFoods.length > 0 && (
-        <div className="mb-16">
-          <div className="text-xs tracking-wider uppercase text-[#737373] mb-4">SUGGESTED FOODS</div>
-          <div className="space-y-2">
-            {suggestedFoods.slice(0, 6).map((f) => (
-              <div key={f.food_id} className="p-4 border border-[#262626] rounded bg-[#0a0a0a] flex items-center justify-between">
-                <div className="text-sm">{f.food_name}</div>
-                <div className="text-xs text-[#737373]">score {Number(f.score).toFixed(2)}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Add Meal Card */}
-      <div className="mb-8">
-        <button
-          onClick={() => setActivePanel('addMeal')}
-          className="w-full text-left p-6 border border-[#262626] rounded bg-[#004D61] hover:border-[#404040] transition-colors"
+        {/* System State Pill */}
+        <span 
+          style={{
+            backgroundColor: statusTokens.bg,
+            color: statusTokens.color,
+            borderRadius: 'var(--radius-pill)',
+            padding: '5px 12px',
+            fontSize: '11.5px',
+            fontWeight: 'var(--weight-bold)',
+          }}
+          className="inline-flex items-center gap-1.5"
         >
-          <div className="text-3xl mb-1 text-center text-[#F0F0F0]">Add Meal</div>
-          <div className="text-base text-center text-[#F0F0F0]">Tap to log a meal</div>
-        </button>
+          <span>●</span>
+          <span>{statusTokens.label}</span>
+        </span>
       </div>
 
-      {/* Meal Type Cards */}
-      <div className="mb-16">
-        <div className="text-xs tracking-wider uppercase text-[#737373] mb-4">TODAY'S MEALS</div>
-        <div className="grid grid-cols-2 gap-4">
-          {(['breakfast', 'lunch', 'dinner', 'snack'] as MealType[]).map((type) => {
-            const stats = getMealTypeStats(type);
-            const label = type === 'snack' ? 'Snacks' : type.charAt(0).toUpperCase() + type.slice(1);
-            
-            return (
-              <button
-                key={type}
-                onClick={() => setActivePanel(type)}
-                className="text-left p-6 border border-[#262626] rounded bg-[#0a0a0a] hover:border-[#404040] transition-colors"
+      {/* 2-Column Asymmetric Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-5 items-start">
+        {/* LEFT COLUMN: Hero Caloric/Macro Card & Actions */}
+        <div className="flex flex-col gap-5">
+          {/* Dominant Hero Card */}
+          <div 
+            style={{
+              backgroundColor: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '16px',
+              boxShadow: 'var(--shadow)',
+              padding: '28px 30px',
+            }}
+          >
+            {/* Primary Calorie Metric */}
+            <div className="mb-6">
+              <div 
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-3)',
+                  fontWeight: 'var(--weight-semibold)',
+                  marginBottom: '4px',
+                }}
               >
-                <div className="text-lg mb-2">{label}</div>
-                <div className="text-sm text-[#737373]">
-                  {stats.count} meal{stats.count !== 1 ? 's' : ''}
-                  {stats.calories > 0 && ` • ~${stats.calories} kcal`}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Additional Signals */}
-      {signals.length > 1 && (
-        <div className="mb-12">
-          <div className="text-xs tracking-wider uppercase text-[#737373] mb-3">ADDITIONAL SIGNALS</div>
-          <div className="space-y-2">
-            {signals.slice(1).map((signal) => (
-              <div key={signal.id} className="text-sm text-[#737373]">
-                {signal.message}
+                Calories consumed today
               </div>
-            ))}
+              <div className="flex items-baseline gap-2 mb-3">
+                <span 
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '36px',
+                    fontWeight: 'var(--weight-medium)',
+                    color: 'var(--text)',
+                    lineHeight: '1.1',
+                  }}
+                >
+                  {todayCalories}
+                </span>
+                <span 
+                  style={{
+                    fontSize: '18px',
+                    color: 'var(--text-3)',
+                  }}
+                >
+                  / {calorieTarget} kcal
+                </span>
+              </div>
+
+              {/* Progress Bar */}
+              <div 
+                style={{
+                  backgroundColor: 'var(--progress-track)',
+                  height: '6px',
+                  borderRadius: 'var(--radius-pill)',
+                }}
+                className="overflow-hidden"
+              >
+                <div 
+                  style={{ 
+                    width: `${Math.min((todayCalories / (calorieTarget || 2000)) * 100, 100)}%`,
+                    backgroundColor: 'var(--accent)',
+                    borderRadius: 'var(--radius-pill)',
+                  }}
+                  className="h-full transition-all duration-500 ease-out"
+                />
+              </div>
+            </div>
+
+            {/* Macro Pacing Bars */}
+            <div 
+              style={{
+                borderTop: '1px solid var(--border)',
+                paddingTop: '20px',
+              }}
+              className="mb-6"
+            >
+              <div 
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-3)',
+                  fontWeight: 'var(--weight-semibold)',
+                  marginBottom: '14px',
+                }}
+              >
+                Macronutrient breakdown
+              </div>
+
+              <div className="space-y-3.5">
+                {[
+                  { label: "Protein", value: todayProtein, target: proteinTarget, color: 'var(--chart-1)' },
+                  { label: "Carbs", value: todayCarbs, target: carbsTarget, color: 'var(--chart-3)' },
+                  { label: "Fat", value: todayFat, target: fatTarget, color: 'var(--chart-4)' }
+                ].map((macro) => {
+                  const progress = Math.min((macro.value / (macro.target || 1)) * 100, 100);
+
+                  return (
+                    <div key={macro.label}>
+                      <div className="flex justify-between items-center mb-1 text-xs">
+                        <span style={{ color: 'var(--text)', fontWeight: 'var(--weight-medium)' }}>
+                          {macro.label}
+                        </span>
+                        <span style={{ color: 'var(--text)' }}>
+                          <b>{macro.value}g</b> <span style={{ color: 'var(--text-3)' }}>/ {macro.target}g</span>
+                        </span>
+                      </div>
+
+                      <div 
+                        style={{
+                          backgroundColor: 'var(--progress-track)',
+                          height: '4px',
+                          borderRadius: 'var(--radius-pill)',
+                        }}
+                        className="overflow-hidden"
+                      >
+                        <div
+                          style={{
+                            width: `${progress}%`,
+                            backgroundColor: macro.color,
+                            borderRadius: 'var(--radius-pill)',
+                          }}
+                          className="h-full transition-all duration-500"
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Primary Signal Block */}
+            {signals.length > 0 && (
+              <div 
+                style={{
+                  backgroundColor: 'var(--surface-2)',
+                  borderColor: 'var(--border)',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '14px 16px',
+                  fontSize: '13.5px',
+                  color: 'var(--text-2)',
+                  lineHeight: '1.55',
+                  marginBottom: '20px',
+                }}
+                className="border"
+              >
+                {signals[0].message}
+              </div>
+            )}
+
+            {/* Primary Action Button */}
+            <ActionButton
+              variant="primary"
+              onClick={() => setActivePanel('addMeal')}
+              fullWidth
+            >
+              Log a meal
+            </ActionButton>
+          </div>
+
+          {/* Daily Micronutrient Insights */}
+          {dailyInsights && (
+            <div 
+              style={{
+                backgroundColor: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: '16px',
+                boxShadow: 'var(--shadow)',
+                padding: '24px 26px',
+              }}
+            >
+              <div 
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-3)',
+                  fontWeight: 'var(--weight-semibold)',
+                  marginBottom: '12px',
+                }}
+              >
+                Micronutrient tracking
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: 'Calcium', value: dailyInsights.calcium_percent },
+                  { label: 'Iron', value: dailyInsights.iron_percent },
+                  { label: 'Magnesium', value: dailyInsights.magnesium_percent },
+                ].map((n) => (
+                  <div 
+                    key={n.label} 
+                    style={{
+                      backgroundColor: 'var(--surface-2)',
+                      borderColor: 'var(--border)',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: '12px 14px',
+                    }}
+                    className="border"
+                  >
+                    <div style={{ fontSize: '11.5px', color: 'var(--text-3)' }}>
+                      {n.label}
+                    </div>
+                    <div 
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        fontSize: '20px',
+                        fontWeight: 'var(--weight-medium)',
+                        color: 'var(--text)',
+                        marginTop: '2px',
+                      }}
+                    >
+                      {Math.round(n.value)}%
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT COLUMN: Meals Breakdown & Supporting Cards */}
+        <div className="flex flex-col gap-4">
+          {/* 1. Today's Meals Summary Card */}
+          <div 
+            style={{
+              backgroundColor: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '16px',
+              padding: '8px',
+              boxShadow: 'var(--shadow)',
+            }}
+          >
+            <div style={{ padding: '10px 14px 6px', fontSize: '12px', fontWeight: 'var(--weight-semibold)', color: 'var(--text-3)' }}>
+              Today's meal timeline
+            </div>
+
+            {(['breakfast', 'lunch', 'dinner', 'snack'] as MealType[]).map((type, idx) => {
+              const stats = getMealTypeStats(type);
+              const label = type === 'snack' ? 'Snacks' : type.charAt(0).toUpperCase() + type.slice(1);
+              
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setActivePanel(type)}
+                  style={{
+                    borderTop: idx > 0 ? '1px solid var(--border)' : undefined,
+                    borderRadius: '10px',
+                  }}
+                  className="w-full flex justify-between items-center px-3.5 py-3 text-left transition-colors hover:bg-[var(--surface-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                >
+                  <div>
+                    <div style={{ fontSize: '13.5px', fontWeight: 'var(--weight-semibold)', color: 'var(--text)' }}>
+                      {label}
+                    </div>
+                    <small style={{ color: 'var(--text-2)', fontSize: '11.5px', display: 'block', marginTop: '1px' }}>
+                      {stats.count === 0 ? 'Not logged' : `${stats.count} ${stats.count === 1 ? 'item' : 'items'}`}
+                    </small>
+                  </div>
+                  <span 
+                    style={{
+                      backgroundColor: stats.calories > 0 ? 'var(--accent-soft)' : 'var(--surface-2)',
+                      color: stats.calories > 0 ? 'var(--accent)' : 'var(--text-3)',
+                      fontSize: '11px',
+                      fontWeight: 'var(--weight-bold)',
+                      padding: '3px 9px',
+                      borderRadius: 'var(--radius-pill)',
+                    }}
+                  >
+                    {stats.calories > 0 ? `${stats.calories} kcal` : '—'}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 2. Suggested Foods */}
+          {suggestedFoods.length > 0 && (
+            <div 
+              style={{
+                backgroundColor: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: '16px',
+                padding: '20px 22px',
+                boxShadow: 'var(--shadow)',
+              }}
+            >
+              <div 
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-3)',
+                  fontWeight: 'var(--weight-semibold)',
+                  marginBottom: '10px',
+                }}
+              >
+                Suggested nutrient boosters
+              </div>
+              <div className="space-y-2">
+                {suggestedFoods.slice(0, 4).map((f) => (
+                  <div 
+                    key={f.food_id} 
+                    style={{
+                      backgroundColor: 'var(--surface-2)',
+                      borderColor: 'var(--border)',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: '8px 12px',
+                    }}
+                    className="border flex items-center justify-between"
+                  >
+                    <div style={{ fontSize: '12.5px', color: 'var(--text)' }}>
+                      {f.food_name}
+                    </div>
+                    <span 
+                      style={{
+                        backgroundColor: 'var(--good-soft)',
+                        color: 'var(--good)',
+                        borderRadius: 'var(--radius-pill)',
+                        padding: '2px 7px',
+                        fontSize: '10.5px',
+                        fontWeight: 'var(--weight-bold)',
+                      }}
+                    >
+                      Optimal
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 3. Cross-System Pattern Teaser */}
+          <div 
+            style={{
+              background: 'linear-gradient(160deg, var(--surface), var(--surface-2))',
+              border: '1px solid var(--border)',
+              borderRadius: '16px',
+              padding: '22px 24px',
+              boxShadow: 'var(--shadow)',
+            }}
+          >
+            <div 
+              style={{
+                fontSize: '12px',
+                color: 'var(--accent)',
+                fontWeight: 'var(--weight-bold)',
+                marginBottom: '8px',
+              }}
+            >
+              Metabolic pattern
+            </div>
+            <p 
+              style={{
+                fontSize: '13.5px',
+                color: 'var(--text-2)',
+                lineHeight: '1.55',
+              }}
+            >
+              Meeting 80%+ of your daily protein target consistently elevates daytime physical output and steadies resting sleep heart rate.
+            </p>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
